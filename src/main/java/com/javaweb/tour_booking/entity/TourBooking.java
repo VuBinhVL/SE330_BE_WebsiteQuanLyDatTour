@@ -34,6 +34,7 @@ public class TourBooking {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
     // Thiết lập khóa ngoại đến bảng "Tour"
     @ManyToOne(fetch = FetchType.LAZY) // LAZY để tránh load toàn bộ Tour khi không cần
     @JoinColumn(name = "tour_id", nullable = false)
