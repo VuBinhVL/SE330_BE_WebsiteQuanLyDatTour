@@ -33,7 +33,7 @@ public class TouristAttractionController {
         return ResponseEntity.ok(response);
     }
 
-    //GET API cho getById
+    //POST API cho getById
     @PostMapping("/get/{id}")
     public ResponseEntity<ApiResponse<TouristAttractionDTO>> getTouristAttractionById(@PathVariable Long id) {
         TouristAttractionDTO touristAttractionDTO =  touristAttractionService.getTouristAttractionById(id);
@@ -41,7 +41,7 @@ public class TouristAttractionController {
         return ResponseEntity.ok(response);
     }
 
-    //POST API cho update
+    //Put API cho update
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<TouristAttractionDTO>> updateTouristAttraction(@PathVariable Long id, @RequestBody TouristAttractionDTO attractionDTO) {
         TouristAttractionDTO touristAttractionDTO = touristAttractionService.updateTouristAttraction(id, attractionDTO);
@@ -49,7 +49,7 @@ public class TouristAttractionController {
         return ResponseEntity.ok(response);
     }
 
-    //POST API cho delete
+    //Delete API cho delete
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse<String>> deleteTouristAttraction(@PathVariable Long id) {
         touristAttractionService.deleteTouristAttraction(id);

@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
+import java.time.LocalDateTime;
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDTO {
+public class FavoriteTourDTO {
     private Long id;
-    private String username;
-    private String password;
-    private Boolean isLock;
+    private LocalDateTime createdAt;
+    private Long userID;
+    private Long tourRouteId;
 }

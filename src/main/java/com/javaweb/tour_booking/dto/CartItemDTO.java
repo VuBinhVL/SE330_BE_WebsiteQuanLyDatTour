@@ -5,13 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
+import java.math.BigDecimal;
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDTO {
+public class CartItemDTO {
     private Long id;
-    private String username;
-    private String password;
-    private Boolean isLock;
+    private int quantity;
+    private BigDecimal price;
+    private Long tourID;
+    private Long cartId;
 }

@@ -5,13 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDTO {
+public class GalleyDTO {
     private Long id;
-    private String username;
-    private String password;
-    private Boolean isLock;
+    private String thumbNail;
+    private Long touristAttractionId;
 }
