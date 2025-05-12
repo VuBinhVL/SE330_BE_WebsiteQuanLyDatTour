@@ -26,9 +26,6 @@ public class TourBooking {
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
-    @Column(name = "status", nullable = false)
-    private int status;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

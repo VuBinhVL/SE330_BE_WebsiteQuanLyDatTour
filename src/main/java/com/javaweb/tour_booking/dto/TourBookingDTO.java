@@ -16,7 +16,6 @@ public class TourBookingDTO {
     private Long id;
     private int seatsBooked;
     private BigDecimal totalPrice;
-    private int status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long tourId;

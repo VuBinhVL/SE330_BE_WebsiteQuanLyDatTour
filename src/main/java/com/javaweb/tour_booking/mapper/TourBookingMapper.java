@@ -12,7 +12,6 @@ public class TourBookingMapper {
         dto.setId(booking.getId());
         dto.setSeatsBooked(booking.getSeatsBooked());
         dto.setTotalPrice(booking.getTotalPrice());
-        dto.setStatus(booking.getStatus());
         dto.setCreatedAt(booking.getCreatedAt());
         dto.setUpdatedAt(booking.getUpdatedAt());
         dto.setTourId(booking.getTour().getId());
@@ -26,7 +25,6 @@ public class TourBookingMapper {
         booking.setId(dto.getId());
         booking.setSeatsBooked(dto.getSeatsBooked());
         booking.setTotalPrice(dto.getTotalPrice());
-        booking.setStatus(dto.getStatus());
         booking.setCreatedAt(dto.getCreatedAt());
         booking.setUpdatedAt(dto.getUpdatedAt());
         booking.setTour(tour);
