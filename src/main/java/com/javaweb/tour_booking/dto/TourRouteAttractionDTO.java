@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TourRouteAttractionDTO {
     private Long id;
-    private int order;
+    private int orderAction;
     private int day;
     private String actionDescription;
     private Long tourRouteId;

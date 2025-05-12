@@ -9,7 +9,7 @@ public class TourRouteAttactionMapper {
     public static TourRouteAttractionDTO mapToTourRouteAttractionDTO(TourRouteAttraction entity) {
         TourRouteAttractionDTO dto = new TourRouteAttractionDTO();
         dto.setId(entity.getId());
-        dto.setOrder(entity.getOrder());
+        dto.setOrderAction(entity.getOrderAction());
         dto.setActionDescription(entity.getActionDescription());
         dto.setDay(entity.getDay());
         dto.setTourRouteId(entity.getTourRoute().getId());
@@ -23,7 +23,7 @@ public class TourRouteAttactionMapper {
             TouristAttraction touristAttraction) {
         TourRouteAttraction entity = new TourRouteAttraction();
         entity.setId(dto.getId());
-        entity.setOrder(dto.getOrder());
+        entity.setOrderAction(dto.getOrderAction());
         entity.setActionDescription(dto.getActionDescription());
         entity.setDay(dto.getDay());
         entity.setTourRoute(tourRoute);

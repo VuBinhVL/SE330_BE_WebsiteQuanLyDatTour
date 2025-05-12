@@ -17,8 +17,8 @@ public class TourRouteAttraction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "order", nullable = false)
-    private int order;
+    @Column(name = "order-action", nullable = false)
+    private int orderAction;
 
     @Column(name = "action_description", nullable = false)
     private String actionDescription;

@@ -27,9 +27,10 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
 
     @Override
     public TouristAttractionDTO createTouristAttraction(TouristAttractionDTO touristAttractionDTO) {
-        TouristAttraction touristAttraction = TouristAttractionMapper.mapToTouristAttraction(touristAttractionDTO);
-        TouristAttraction saveTouristAttraction = touristAttractionRepository.save(touristAttraction);
-        return TouristAttractionMapper.mapToTouristAttractionDTO(saveTouristAttraction);
+        //TouristAttraction touristAttraction = TouristAttractionMapper.mapToTouristAttraction(touristAttractionDTO);
+        //TouristAttraction saveTouristAttraction = touristAttractionRepository.save(touristAttraction);
+        //return TouristAttractionMapper.mapToTouristAttractionDTO(saveTouristAttraction);
+        return touristAttractionDTO;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
         touristAttraction.setName(touristAttractionDTO.getName());
         touristAttraction.setDescription(touristAttractionDTO.getDescription());
         touristAttraction.setLocation(touristAttractionDTO.getLocation());
-        touristAttraction.setCategory(touristAttractionDTO.getCategory());
+        //touristAttraction.setCategory(touristAttractionDTO.getCategory());
         touristAttraction.setCreatedAt(touristAttractionDTO.getCreatedAt());
         touristAttraction.setUpdatedAt(touristAttractionDTO.getUpdatedAt());
         TouristAttraction saveTouristAttraction = touristAttractionRepository.save(touristAttraction);
