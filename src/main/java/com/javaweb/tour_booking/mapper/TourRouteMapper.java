@@ -12,6 +12,7 @@ public class TourRouteMapper {
         dto.setEndLocation(route.getEndLocation());
         dto.setStartDate(route.getStartDate());
         dto.setEndDate(route.getEndDate());
+        dto.setImage(route.getImage());
         dto.setCreatedAt(route.getCreatedAt());
         dto.setUpdatedAt(route.getUpdatedAt());
         return dto;
@@ -25,6 +26,7 @@ public class TourRouteMapper {
         route.setEndLocation(dto.getEndLocation());
         route.setStartDate(dto.getStartDate());
         route.setEndDate(dto.getEndDate());
+        route.setImage(dto.getImage());
         route.setCreatedAt(dto.getCreatedAt());
         route.setUpdatedAt(dto.getUpdatedAt());
         return route;

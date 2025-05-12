@@ -9,11 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TourRouteAttractionDTO {
+public class CategoryDTO {
     private Long id;
-    private int order;
-    private int day;
-    private String actionDescription;
-    private Long tourRouteId;
-    private Long touristAttractionId;
+    private String name;
 }

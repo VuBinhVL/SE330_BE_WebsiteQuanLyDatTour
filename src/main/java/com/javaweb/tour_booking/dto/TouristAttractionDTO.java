@@ -1,5 +1,6 @@
 package com.javaweb.tour_booking.dto;
 
+import com.javaweb.tour_booking.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,8 @@ public class TouristAttractionDTO {
     private String name;
     private String description;
     private String location;
-    private String category;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long categoryId;
+
 }

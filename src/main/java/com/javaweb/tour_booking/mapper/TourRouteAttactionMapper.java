@@ -11,6 +11,7 @@ public class TourRouteAttactionMapper {
         dto.setId(entity.getId());
         dto.setOrder(entity.getOrder());
         dto.setActionDescription(entity.getActionDescription());
+        dto.setDay(entity.getDay());
         dto.setTourRouteId(entity.getTourRoute().getId());
         dto.setTouristAttractionId(entity.getTouristAttraction().getId());
         return dto;
@@ -24,6 +25,7 @@ public class TourRouteAttactionMapper {
         entity.setId(dto.getId());
         entity.setOrder(dto.getOrder());
         entity.setActionDescription(dto.getActionDescription());
+        entity.setDay(dto.getDay());
         entity.setTourRoute(tourRoute);
         entity.setTouristAttraction(touristAttraction);
         return entity;

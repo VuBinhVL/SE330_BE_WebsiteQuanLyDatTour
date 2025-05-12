@@ -35,6 +35,9 @@ public class TourRoute {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    @Column(name = "image", nullable = false)
+    private String image;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

@@ -28,12 +28,14 @@ public class TouristAttraction {
     @Column(name = "location", nullable = false)
     private String location;
 
-    @Column(name = "category", nullable = false)
-    private String category;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // Thiết lập khóa ngoại đến bảng "category"
+    @ManyToOne(fetch = FetchType.LAZY) // LAZY để tránh load toàn bộ category khi không cần
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 }

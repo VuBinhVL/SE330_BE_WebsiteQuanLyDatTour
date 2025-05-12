@@ -18,6 +18,7 @@ public class TourRouteDTO {
     private String routeName;
     private String startLocation;
     private String endLocation;
+    private String image;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime createdAt;

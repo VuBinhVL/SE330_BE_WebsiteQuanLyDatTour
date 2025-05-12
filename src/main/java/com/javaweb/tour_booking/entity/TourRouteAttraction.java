@@ -23,6 +23,9 @@ public class TourRouteAttraction {
     @Column(name = "action_description", nullable = false)
     private String actionDescription;
 
+    @Column(name = "day", nullable = false)
+    private int day;
+
     // Thiết lập khóa ngoại đến bảng "tour_route"
     @ManyToOne(fetch = FetchType.LAZY) // LAZY để tránh load toàn bộ tour_route khi không cần
     @JoinColumn(name = "tour_route_id", nullable = false)
