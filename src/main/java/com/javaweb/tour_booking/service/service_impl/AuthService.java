@@ -19,11 +19,11 @@ public class AuthService {
         try {
             Account account = accountRepository.findByUsername(request.getUsername()).orElse(null);
             if (account == null) {
-                return new LoginResponse(false, "Sai tên đăng nhập", null, null);
+                return new LoginResponse(false, "Tên đăng nhập hoặc mật khẩu sai", null, null);
             }
 
             if (!account.getPassword().equals(request.getPassword())) {
-                return new LoginResponse(false, "Sai mật khẩu", null, null);
+                return new LoginResponse(false, "Tên đăng nhập hoặc mật khẩu sai", null, null);
             }
 
             if (account.getIsLock()) {
