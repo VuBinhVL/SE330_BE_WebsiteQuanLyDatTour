@@ -1,0 +1,13 @@
+package com.javaweb.tour_booking.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class TouristAttractionResponse {
+    private Long id;
+    private String name;
+    private String location;
+    private String categoryName;
+}
