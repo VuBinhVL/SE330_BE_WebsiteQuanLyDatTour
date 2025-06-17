@@ -12,6 +12,7 @@ import com.javaweb.tour_booking.repository.TouristAttractionRepository;
 import com.javaweb.tour_booking.service.ITouristAttractionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,5 +53,18 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
                 imageURL
         );
 
+    }
+
+    @Transactional
+    @Override
+    public void deleteTouristAttractionById(Long id) {
+        TouristAttraction attraction = touristAttractionRepository.findById(id)
+                .orElseThrow(() -> new TouristAttractionNotFound("Không tìm thấy địa điểm du lịch"));
+
+        //Xóa ảnh
+        galleyRepository.deleteByTouristAttraction(attraction);
+
+        //Xóa địa điểm
+        touristAttractionRepository.delete(attraction);
     }
 }

@@ -9,4 +9,6 @@ public interface ITouristAttractionService {
     public List<TouristAttractionResponse> getAllTouristAttractions();
 
     public TouristAttractionDetailResponse getTouristAttractionById(Long id);
+
+    public void deleteTouristAttractionById(Long id);
 }
