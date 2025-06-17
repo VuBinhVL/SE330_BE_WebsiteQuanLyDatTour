@@ -2,6 +2,7 @@ package com.javaweb.tour_booking.controller.admin;
 
 import com.javaweb.tour_booking.common.ApiResponse;
 import com.javaweb.tour_booking.dto.TouristAttractionDTO;
+import com.javaweb.tour_booking.dto.response.TouristAttractionDetailResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionResponse;
 import com.javaweb.tour_booking.service.ITouristAttractionService;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,11 @@ public class TouristAttractionController {
 
     @GetMapping
     public ResponseEntity<List<TouristAttractionResponse>> getAllTouristAttractions(){
-        return new ResponseEntity(touristAttractionService.getAllTouristAttractions(), HttpStatus.OK);
+        return new ResponseEntity<>(touristAttractionService.getAllTouristAttractions(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public  ResponseEntity<TouristAttractionDetailResponse> getTouristAttractionById(@PathVariable Long id){
+        return new ResponseEntity<>(touristAttractionService.getTouristAttractionById(id), HttpStatus.OK);
     }
 }
