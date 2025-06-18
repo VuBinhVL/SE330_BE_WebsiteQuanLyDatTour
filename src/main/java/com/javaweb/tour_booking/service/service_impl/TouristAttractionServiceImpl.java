@@ -4,10 +4,12 @@ import com.javaweb.tour_booking.dto.TouristAttractionDTO;
 import com.javaweb.tour_booking.dto.response.TouristAttractionDetailResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionResponse;
 import com.javaweb.tour_booking.entity.Galley;
+import com.javaweb.tour_booking.entity.TourRouteAttraction;
 import com.javaweb.tour_booking.entity.TouristAttraction;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.TouristAttractionMapper;
 import com.javaweb.tour_booking.repository.GalleyRepository;
+import com.javaweb.tour_booking.repository.TourRouteAttractionRepository;
 import com.javaweb.tour_booking.repository.TouristAttractionRepository;
 import com.javaweb.tour_booking.service.ITouristAttractionService;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class TouristAttractionServiceImpl implements ITouristAttractionService {
     private TouristAttractionRepository touristAttractionRepository;
     private GalleyRepository galleyRepository;
+    private TourRouteAttractionRepository tourRouteAttractionRepository;
 
     @Override
     public List<TouristAttractionResponse> getAllTouristAttractions() {
@@ -60,6 +63,11 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
     public void deleteTouristAttractionById(Long id) {
         TouristAttraction attraction = touristAttractionRepository.findById(id)
                 .orElseThrow(() -> new TouristAttractionNotFound("Không tìm thấy địa điểm du lịch"));
+        //Kiểm tra ràng buộc
+        List<TourRouteAttraction> linkRoutes = tourRouteAttractionRepository.findByTouristAttraction(attraction);
+        if (!linkRoutes.isEmpty()) {
+            throw new RuntimeException("Không thể xóa. Địa điểm đang được sử dụng trong tuyến du lịch.");
+        }
 
         //Xóa ảnh
         galleyRepository.deleteByTouristAttraction(attraction);
