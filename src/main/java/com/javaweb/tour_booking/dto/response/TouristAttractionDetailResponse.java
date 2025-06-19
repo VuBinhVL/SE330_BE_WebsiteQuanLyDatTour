@@ -15,5 +15,5 @@ public class TouristAttractionDetailResponse {
     private String categoryName;
     private Long categoryId;
     private String description;
-    private List<String> galleries;
+    private List<GalleryResponse> galleries;
 }
