@@ -1,13 +1,13 @@
 package com.javaweb.tour_booking.service.service_impl;
 
-import com.javaweb.tour_booking.dto.TouristAttractionDTO;
 import com.javaweb.tour_booking.dto.response.TouristAttractionDetailResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionResponse;
+import com.javaweb.tour_booking.entity.Category;
 import com.javaweb.tour_booking.entity.Galley;
 import com.javaweb.tour_booking.entity.TourRouteAttraction;
 import com.javaweb.tour_booking.entity.TouristAttraction;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
-import com.javaweb.tour_booking.mapper.TouristAttractionMapper;
+import com.javaweb.tour_booking.repository.CategoryRepository;
 import com.javaweb.tour_booking.repository.GalleyRepository;
 import com.javaweb.tour_booking.repository.TourRouteAttractionRepository;
 import com.javaweb.tour_booking.repository.TouristAttractionRepository;
@@ -15,14 +15,23 @@ import com.javaweb.tour_booking.service.ITouristAttractionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class TouristAttractionServiceImpl implements ITouristAttractionService {
+    private CategoryRepository categoryRepository;
     private TouristAttractionRepository touristAttractionRepository;
     private GalleyRepository galleyRepository;
     private TourRouteAttractionRepository tourRouteAttractionRepository;
@@ -75,4 +84,55 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
         //Xóa địa điểm
         touristAttractionRepository.delete(attraction);
     }
+
+    @Override
+    @Transactional
+    public void createTouristAttraction(String name,
+                                        String location,
+                                        String description,
+                                        Long categoryId,
+                                        List<MultipartFile> images) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy loại địa điểm"));
+
+        TouristAttraction ta = new TouristAttraction();
+        ta.setName(name);
+        ta.setLocation(location);
+        ta.setDescription(description);
+        ta.setCategory(category);
+        ta.setCreatedAt(LocalDateTime.now());
+        ta.setUpdatedAt(LocalDateTime.now());
+        TouristAttraction saved = touristAttractionRepository.save(ta);
+
+        // 1. Chuẩn bị thư mục uploads (absolute path)
+        Path uploadPath = Paths.get("uploads", "destinations").toAbsolutePath();
+        try {
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Không thể tạo thư mục ", e);
+        }
+
+        // 2. Lặp qua từng file và copy
+        for (MultipartFile file : images) {
+            if (file.isEmpty()) continue;
+            String original = file.getOriginalFilename();
+            String filename = System.currentTimeMillis() + "_" + original.replaceAll("\\s+", "_");
+            Path dest = uploadPath.resolve(filename);
+
+            try (InputStream in = file.getInputStream()) {
+                Files.copy(in, dest, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException("Lỗi khi lưu ảnh: " + original, e);
+            }
+
+            // 3. Lưu vào DB
+            Galley g = new Galley();
+            g.setThumbNail("/uploads/destinations/" + filename);
+            g.setTouristAttraction(saved);
+            galleyRepository.save(g);
+        }
+    }
+
 }

@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -44,5 +45,21 @@ public class TouristAttractionController {
                     .body(Map.of("message", e.getMessage()));
         }
 
+    }
+
+    @PostMapping()
+    public ResponseEntity<?> createTouristAttraction(
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("location") String location,
+            @RequestParam("categoryId") Long categoryId,
+            @RequestParam("images") List<MultipartFile> images
+    ) {
+        try {
+            touristAttractionService.createTouristAttraction(name, location, description, categoryId, images);
+            return ResponseEntity.ok().body(Map.of("message", "Thêm địa điểm thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Thêm địa điểm thất bại", "error", e.getMessage()));
+        }
     }
 }

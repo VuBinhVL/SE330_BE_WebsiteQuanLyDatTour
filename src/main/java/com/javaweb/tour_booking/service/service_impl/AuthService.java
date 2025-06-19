@@ -76,7 +76,7 @@ public class AuthService {
         account = accountRepository.save(account);
 
         //Tìm Role Customer
-        Role roleAccout = roleRepository.findById(2L).orElseThrow(() -> new RuntimeException("Không tìm thấy quyền khách hàng"));
+        Role roleAccout = roleRepository.findById(1L).orElseThrow(() -> new RuntimeException("Không tìm thấy quyền khách hàng"));
 
         //Tạo người dùng
         User user = new User();
