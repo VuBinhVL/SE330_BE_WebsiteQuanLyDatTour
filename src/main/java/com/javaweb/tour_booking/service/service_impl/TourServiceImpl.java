@@ -7,6 +7,7 @@ import com.javaweb.tour_booking.entity.TourRoute;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.TourRouteMapper;
 import com.javaweb.tour_booking.repository.TourRepository;
+import com.javaweb.tour_booking.repository.TourRouteRepository;
 import com.javaweb.tour_booking.service.ITourService;
 import com.javaweb.tour_booking.mapper.TourMapper;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class TourServiceImpl implements ITourService {
     private final TourRepository tourRepository;
+    private final TourRouteRepository tourRouteRepository;
 
     @Override
     public List<TourDTO> GetAllTours() {
@@ -39,7 +41,20 @@ public class TourServiceImpl implements ITourService {
 
     @Override
     public TourDTO CreateTour(TourDTO newTour) {
-        return null;
+        if (newTour == null || newTour.getTourRouteId() == null) {
+            throw new IllegalArgumentException("TourDTO hoặc tourRouteId không được null");
+        }
+
+        // Lấy TourRoute từ tourRouteId
+        TourRoute tourRoute = tourRouteRepository.findById(newTour.getTourRouteId())
+                .orElseThrow(() -> new TouristAttractionNotFound("Không tìm thấy tuyến du lịch với ID: " + newTour.getTourRouteId()));
+
+        // Ánh xạ TourDTO sang Tour
+        Tour tour = TourMapper.mapToTour(newTour, tourRoute);
+        // Lưu vào cơ sở dữ liệu
+        Tour saved = tourRepository.save(tour);
+        // Ánh xạ ngược lại sang TourDTO
+        return TourMapper.mapToTourDTO(saved);
     }
 
     @Override

@@ -30,4 +30,10 @@ public class TourController {
         ApiResponse<TourDTO> response = new ApiResponse<>("Đã tìm thấy chuyến du lịch", tourDTO);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/create")
+    public ResponseEntity<ApiResponse<TourDTO>> createTour(@RequestBody TourDTO tourDTO) {
+        TourDTO result = tourService.CreateTour(tourDTO);
+        ApiResponse<TourDTO> response = new ApiResponse<>("Thêm tour thành công", result);
+        return ResponseEntity.ok(response);
+    }
 }

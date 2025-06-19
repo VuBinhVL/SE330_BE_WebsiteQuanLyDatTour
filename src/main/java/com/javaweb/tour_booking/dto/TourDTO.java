@@ -24,5 +24,5 @@ public class TourDTO {
     private String pickUpLocation;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long tourRoute;
+    private Long tourRouteId;
 }
