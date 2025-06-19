@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
@@ -32,13 +33,15 @@ public class TouristAttractionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTouristAttractionById(@PathVariable Long id){
+    public ResponseEntity<?> deleteTouristAttractionById(@PathVariable Long id){
         try {
             touristAttractionService.deleteTouristAttractionById(id);
-            return ResponseEntity.ok("Xóa địa điểm du lịch thành công");
+            return ResponseEntity.ok(Map.of("message", "Xóa địa điểm thành công"));
         }
         catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", e.getMessage()));
         }
 
     }
