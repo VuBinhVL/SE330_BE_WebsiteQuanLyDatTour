@@ -6,6 +6,7 @@ import com.javaweb.tour_booking.service.IAccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 import java.util.List;
 
@@ -48,6 +49,21 @@ public class AccountController {
     public ResponseEntity<ApiResponse<String>> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
         ApiResponse<String> response = new ApiResponse<>("Account deleted successfully", null);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/verify-password")
+    public ResponseEntity<ApiResponse<Boolean>> verifyPassword(@RequestBody Map<String, String> payload) {
+        Long accountId = Long.valueOf(payload.get("accountId"));
+        String password = payload.get("password");
+        boolean isValid = accountService.verifyPassword(accountId, password);
+        ApiResponse<Boolean> response = new ApiResponse<>("Password verification", isValid);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/change-password/{id}")
+    public ResponseEntity<ApiResponse<String>> changePasswordAndSendEmail(@PathVariable Long id) {
+        accountService.changePasswordAndSendEmail(id);
+        ApiResponse<String> response = new ApiResponse<>("Password changed and email sent successfully", null);
         return ResponseEntity.ok(response);
     }
 }

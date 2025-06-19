@@ -9,4 +9,7 @@ public interface IAccountService {
     AccountDTO createAccount(AccountDTO accountDTO);
     AccountDTO updateAccount(Long id, AccountDTO accountDTO);
     void deleteAccount(Long id);
+    boolean verifyPassword(Long accountId, String password);
+    // New method for changing password and sending email
+    void changePasswordAndSendEmail(Long accountId);
 }
