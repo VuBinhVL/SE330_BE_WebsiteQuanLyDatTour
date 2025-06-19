@@ -7,10 +7,7 @@ import com.javaweb.tour_booking.repository.TourRepository;
 import com.javaweb.tour_booking.service.ITourService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,8 +19,15 @@ public class TourController {
     private final ITourService tourService;
     @GetMapping("/get-all")
     public ResponseEntity<ApiResponse<List<TourDTO>>> getAllTours() {
-        List<TourDTO> tours = tourService.getAllTours();
+        List<TourDTO> tours = tourService.GetAllTours();
         ApiResponse<List<TourDTO>> response = new ApiResponse<>("Lấy danh sách chuyến du lịch thành công", tours);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<ApiResponse<TourDTO>> getTourById(@PathVariable Long id) {
+        TourDTO tourDTO = tourService.GetTourById(id);
+        ApiResponse<TourDTO> response = new ApiResponse<>("Đã tìm thấy chuyến du lịch", tourDTO);
         return ResponseEntity.ok(response);
     }
 }
