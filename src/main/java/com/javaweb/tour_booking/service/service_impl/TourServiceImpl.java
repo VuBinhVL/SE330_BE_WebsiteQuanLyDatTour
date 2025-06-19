@@ -91,6 +91,11 @@ public class TourServiceImpl implements ITourService {
     }
     @Override
     public void DeleteTour(long id) {
-
+        Tour tour = tourRepository.findById(id).orElse(null);
+        if (tour == null) {
+            throw new TouristAttractionNotFound("Không tìm thấy chuyến du lịch");
+        }
+        tourRepository.deleteById(id);
     }
+
 }

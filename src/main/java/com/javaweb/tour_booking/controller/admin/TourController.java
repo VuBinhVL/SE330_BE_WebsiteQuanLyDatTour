@@ -42,4 +42,11 @@ public class TourController {
         ApiResponse<TourDTO> response = new ApiResponse<>("Đã cập nhật thông tin chuyến du lịch thành công", updated);
         return ResponseEntity.ok(response);
     }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteTour(@PathVariable Long id) {
+        tourService.DeleteTour(id);
+        ApiResponse<String> response = new ApiResponse<>("Đã xóa chuyến du lịch thành công", null);
+        return ResponseEntity.ok(response);
+    }
+
 }
