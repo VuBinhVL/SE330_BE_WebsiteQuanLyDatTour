@@ -13,6 +13,7 @@ import com.javaweb.tour_booking.mapper.TourMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,9 +60,35 @@ public class TourServiceImpl implements ITourService {
 
     @Override
     public TourDTO UpdateTour(long id, TourDTO updatedTour) {
-        return null;
-    }
+        // Tìm Tour theo id
+        Tour tour = tourRepository.findById(id)
+                .orElseThrow(() -> new TouristAttractionNotFound("Không tìm thấy chuyến du lịch với ID: " + id));
 
+        // Cập nhật tourRoute nếu tourRouteId được cung cấp
+        if (updatedTour.getTourRouteId() != null) {
+            TourRoute tourRoute = tourRouteRepository.findById(updatedTour.getTourRouteId())
+                    .orElseThrow(() -> new TouristAttractionNotFound("Không tìm thấy tuyến du lịch với ID: " + updatedTour.getTourRouteId()));
+            tour.setTourRoute(tourRoute);
+        }
+
+        // Cập nhật các thuộc tính của Tour từ TourDTO
+        tour.setDepatureDate(updatedTour.getDepatureDate());
+        tour.setReturnDate(updatedTour.getReturnDate());
+        tour.setPickUpLocation(updatedTour.getPickUpLocation());
+        tour.setPickUpTime(updatedTour.getPickUpTime());
+        tour.setStatus(updatedTour.getStatus());
+        tour.setPrice(updatedTour.getPrice());
+        tour.setTotalSeats(updatedTour.getTotalSeats());
+        tour.setBookedSeats(updatedTour.getBookedSeats());
+        tour.setUpdatedAt(LocalDateTime.now()); // Cập nhật thời gian sửa đổi
+        // Không cập nhật createdAt vì nó không nên thay đổi
+
+        // Lưu Tour đã cập nhật
+        Tour saved = tourRepository.save(tour);
+
+        // Ánh xạ sang TourDTO và trả về
+        return TourMapper.mapToTourDTO(saved);
+    }
     @Override
     public void DeleteTour(long id) {
 

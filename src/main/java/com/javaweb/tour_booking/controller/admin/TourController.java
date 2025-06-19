@@ -36,4 +36,10 @@ public class TourController {
         ApiResponse<TourDTO> response = new ApiResponse<>("Thêm tour thành công", result);
         return ResponseEntity.ok(response);
     }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ApiResponse<TourDTO>> updateTour(@PathVariable Long id, @RequestBody TourDTO tourDTO) {
+        TourDTO updated = tourService.UpdateTour(id, tourDTO);
+        ApiResponse<TourDTO> response = new ApiResponse<>("Đã cập nhật thông tin chuyến du lịch thành công", updated);
+        return ResponseEntity.ok(response);
+    }
 }
