@@ -1,5 +1,7 @@
 package com.javaweb.tour_booking.service.service_impl;
 
+import com.javaweb.tour_booking.dto.request.TouristAttractionUpdateRequest;
+import com.javaweb.tour_booking.dto.response.GalleryResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionDetailResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionResponse;
 import com.javaweb.tour_booking.entity.Category;
@@ -53,8 +55,14 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
                 .orElseThrow(() -> new TouristAttractionNotFound("Không tìm thấy địa điểm du lịch"));
 
         //Lấy danh sách ảnh của địa điểm
-        List<Galley> galleyList = galleyRepository.findByTouristAttraction(touristAttraction);
-        List <String> imageURL = galleyList.stream().map(Galley::getThumbNail).collect(Collectors.toList());
+        List<GalleryResponse> images = galleyRepository.findByTouristAttraction(touristAttraction)
+                .stream()
+                .map(g -> {
+                    String url = g.getThumbNail();
+                    return new GalleryResponse(g.getId(), url);
+                })
+                .collect(Collectors.toList());
+
         return new TouristAttractionDetailResponse(
                 touristAttraction.getId(),
                 touristAttraction.getName(),
@@ -62,7 +70,7 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
                 touristAttraction.getCategory().getName(),
                 touristAttraction.getCategory().getId(),
                 touristAttraction.getDescription(),
-                imageURL
+                images
         );
 
     }
@@ -135,4 +143,22 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
         }
     }
 
+    @Transactional
+    @Override
+    public void updateTouristAttraction(Long id, TouristAttractionUpdateRequest req) {
+        //1. Lấy địa điểm và category
+        TouristAttraction ta = touristAttractionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy địa điểm"));
+        Category ct = categoryRepository.findById(req.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy loại địa điềm"));
+
+        //2.Cập nhật data
+        ta.setCategory(ct);
+        ta.setName(req.getName());
+        ta.setLocation(req.getLocation());
+        ta.setDescription(req.getDescription());
+        ta.setUpdatedAt(LocalDateTime.now());
+        touristAttractionRepository.save(ta);
+
+}
 }

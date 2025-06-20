@@ -1,4 +1,3 @@
-
 package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.UserDTO;
@@ -10,27 +9,27 @@ import com.javaweb.tour_booking.mapper.UserMapper;
 import com.javaweb.tour_booking.repository.AccountRepository;
 import com.javaweb.tour_booking.repository.RoleRepository;
 import com.javaweb.tour_booking.repository.UserRepository;
-import com.javaweb.tour_booking.service.ICustomerService;
+import com.javaweb.tour_booking.service.FileStorageService;
+import com.javaweb.tour_booking.service.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import com.javaweb.tour_booking.service.FileStorageService;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @AllArgsConstructor
-public class CustomerServiceImpl implements ICustomerService {
+public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final AccountRepository accountRepository;
     private final FileStorageService fileStorageService;
 
     @Override
-    public String updateCustomerAvatar(Long customerId, MultipartFile file) {
-        User user = userRepository.findByIdAndRoleId(customerId, 2L)
-                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
+    public String updateUserAvatar(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         try {
             // Delete old avatar if exists
             String oldAvatarPath = user.getAvatar();
@@ -44,7 +43,7 @@ public class CustomerServiceImpl implements ICustomerService {
             }
 
             // Save new avatar
-            String avatarPath = fileStorageService.saveOrUpdateAvatar(customerId, file);
+            String avatarPath = fileStorageService.saveOrUpdateAvatar(userId, file);
             user.setAvatar(avatarPath);
             userRepository.save(user);
             return avatarPath;
@@ -54,17 +53,23 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
-    public List<UserDTO> getAllCustomers() {
-        // Find all users with role id = 1
-        List<User> customers = userRepository.findAllByRoleId(1L);
-        return customers.stream()
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
                 .map(UserMapper::mapToUserDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UserDTO createCustomer(UserDTO userDTO) {
-        Role role = roleRepository.findById(2L)
+    public UserDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return UserMapper.mapToUserDTO(user);
+    }
+
+    @Override
+    public UserDTO createUser(UserDTO userDTO) {
+        Role role = roleRepository.findById(userDTO.getRole_id())
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         Account account = accountRepository.findById(userDTO.getAccount_id())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
@@ -74,16 +79,9 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
-    public UserDTO getCustomerById(Long id) {
-        User user = userRepository.findByIdAndRoleId(id, 2L)
-                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
-        return UserMapper.mapToUserDTO(user);
-    }
-
-    @Override
-    public UserDTO updateCustomer(Long id, UserDTO userDTO) {
-        User user = userRepository.findByIdAndRoleId(id, 2L)
-                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
+    public UserDTO updateUser(Long id, UserDTO userDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         user.setFullname(userDTO.getFullname());
         user.setEmail(userDTO.getEmail());
         user.setPhoneNumber(userDTO.getPhoneNumber());
@@ -92,27 +90,26 @@ public class CustomerServiceImpl implements ICustomerService {
         user.setSex(userDTO.getSex());
         user.setAvatar(userDTO.getAvatar());
         user.setUpdatedAt(userDTO.getUpdatedAt());
+        // Update role and account if needed
+        if (userDTO.getRole_id() != null && !userDTO.getRole_id().equals(user.getRole().getId())) {
+            Role role = roleRepository.findById(userDTO.getRole_id())
+                    .orElseThrow(() -> new RuntimeException("Role not found"));
+            user.setRole(role);
+        }
+        if (userDTO.getAccount_id() != null && !userDTO.getAccount_id().equals(user.getAccount().getId())) {
+            Account account = accountRepository.findById(userDTO.getAccount_id())
+                    .orElseThrow(() -> new RuntimeException("Account not found"));
+            user.setAccount(account);
+        }
         User updatedUser = userRepository.save(user);
         return UserMapper.mapToUserDTO(updatedUser);
     }
 
     @Override
-    public void deleteCustomer(Long id) {
-        User user = userRepository.findByIdAndRoleId(id, 2L)
-                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
-
-        // Delete avatar file if exists
-        String avatarPath = user.getAvatar();
-        if (avatarPath != null && !avatarPath.isEmpty()) {
-            // Remove leading slash if present
-            String relativePath = avatarPath.startsWith("/") ? avatarPath.substring(1) : avatarPath;
-            java.nio.file.Path filePath = java.nio.file.Paths.get(relativePath).toAbsolutePath();
-            java.io.File avatarFile = filePath.toFile();
-            if (avatarFile.exists()) {
-                avatarFile.delete();
-            }
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User not found");
         }
-
-        userRepository.deleteById(user.getId());
+        userRepository.deleteById(id);
     }
 }

@@ -2,6 +2,7 @@ package com.javaweb.tour_booking.controller.admin;
 
 import com.javaweb.tour_booking.common.ApiResponse;
 import com.javaweb.tour_booking.dto.TouristAttractionDTO;
+import com.javaweb.tour_booking.dto.request.TouristAttractionUpdateRequest;
 import com.javaweb.tour_booking.dto.response.TouristAttractionDetailResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionResponse;
 import com.javaweb.tour_booking.entity.TouristAttraction;
@@ -60,6 +61,18 @@ public class TouristAttractionController {
             return ResponseEntity.ok().body(Map.of("message", "Thêm địa điểm thành công"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", "Thêm địa điểm thất bại", "error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTouristAttraction(@PathVariable Long id, @RequestBody TouristAttractionUpdateRequest request){
+        try {
+            touristAttractionService.updateTouristAttraction(id, request);
+            return ResponseEntity.ok(Map.of("message", "Cập nhật thành công"));
+        } catch (RuntimeException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Cập nhật thất bại"));
         }
     }
 }
