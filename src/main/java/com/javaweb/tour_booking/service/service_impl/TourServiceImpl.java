@@ -4,6 +4,7 @@ import com.javaweb.tour_booking.dto.TourDTO;
 import com.javaweb.tour_booking.dto.TourRouteDTO;
 import com.javaweb.tour_booking.entity.Tour;
 import com.javaweb.tour_booking.entity.TourRoute;
+import com.javaweb.tour_booking.exception.tour.TourCannotBeDeletedException;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.TourRouteMapper;
 import com.javaweb.tour_booking.repository.TourRepository;
@@ -95,6 +96,9 @@ public class TourServiceImpl implements ITourService {
         if (tour == null) {
             throw new TouristAttractionNotFound("Không tìm thấy chuyến du lịch");
         }
+         if (tour.getBookedSeats() > 0) {
+        throw new TourCannotBeDeletedException("Không thể xóa chuyến du lịch vì đã có ghế được đặt");
+    }
         tourRepository.deleteById(id);
     }
 
