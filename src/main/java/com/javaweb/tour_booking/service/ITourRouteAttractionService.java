@@ -10,6 +10,6 @@ public interface ITourRouteAttractionService {
     List<TourRouteAttractionResponse> GetAllTourRouteAttractionsByTourRouteId(Long tourRouteId);
     TourRouteAttractionDTO GetTourRouteAttractionById(Long id);
     TourRouteAttractionDTO CreateTourRouteAttractionByTourRouteId(TourRouteAttractionDTO newTourRouteAttraction);
-    TourRouteAttractionDTO UpdateTourRouteAttraction(long id,TourRouteAttractionDTO updatedTourRouteAttraction);
+    TourRouteAttractionDTO UpdateTourRouteAttractionByTourRouteId(long tourRouteAttractionId,TourRouteAttractionDTO updatedTourRouteAttraction);
     void DeleteTourRouteAttraction(long id);
 }

@@ -73,9 +73,33 @@ public class TourRouteAttractionServiceImpl implements ITourRouteAttractionServi
     }
 
     @Override
-    public TourRouteAttractionDTO UpdateTourRouteAttraction(long id, TourRouteAttractionDTO updatedTourRouteAttraction) {
-        return null;
+    public TourRouteAttractionDTO UpdateTourRouteAttractionByTourRouteId(long tourRouteAttractionId, TourRouteAttractionDTO updatedTourRouteAttraction) {
+        // Tìm TourRouteAttraction theo ID
+        TourRouteAttraction tourRouteAttraction = tourRouteAttractionRepository.findById(tourRouteAttractionId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy lịch trình với ID: " + tourRouteAttractionId));
+
+        // Tìm TourRoute theo tourRouteId
+        TourRoute tourRoute = tourRouteRepository.findById(updatedTourRouteAttraction.getTourRouteId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tuyến du lịch với ID: " + updatedTourRouteAttraction.getTourRouteId()));
+
+        // Tìm TouristAttraction theo touristAttractionId
+        TouristAttraction touristAttraction = touristAttractionRepository.findById(updatedTourRouteAttraction.getTouristAttractionId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy điểm tham quan với ID: " + updatedTourRouteAttraction.getTouristAttractionId()));
+
+        // Cập nhật các trường của TourRouteAttraction
+        tourRouteAttraction.setOrderAction(updatedTourRouteAttraction.getOrderAction());
+        tourRouteAttraction.setDay(updatedTourRouteAttraction.getDay());
+        tourRouteAttraction.setActionDescription(updatedTourRouteAttraction.getActionDescription());
+        tourRouteAttraction.setTourRoute(tourRoute);
+        tourRouteAttraction.setTouristAttraction(touristAttraction);
+
+        // Lưu entity đã cập nhật vào database
+        TourRouteAttraction updatedEntity = tourRouteAttractionRepository.save(tourRouteAttraction);
+
+        // Chuyển đổi entity đã cập nhật thành DTO để trả về
+        return TourRouteAttactionMapper.mapToTourRouteAttractionDTO(updatedEntity);
     }
+
 
     @Override
     public void DeleteTourRouteAttraction(long id) {
