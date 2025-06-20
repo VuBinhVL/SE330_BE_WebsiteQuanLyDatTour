@@ -2,9 +2,12 @@ package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.TourRouteAttractionDTO;
 import com.javaweb.tour_booking.dto.response.TourRouteAttractionResponse;
+import com.javaweb.tour_booking.entity.Tour;
 import com.javaweb.tour_booking.entity.TourRoute;
 import com.javaweb.tour_booking.entity.TourRouteAttraction;
 import com.javaweb.tour_booking.entity.TouristAttraction;
+import com.javaweb.tour_booking.exception.tour.TourCannotBeDeletedException;
+import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.TourRouteAttactionMapper;
 import com.javaweb.tour_booking.mapper.TourRouteMapper;
 import com.javaweb.tour_booking.repository.TourRouteAttractionRepository;
@@ -103,6 +106,10 @@ public class TourRouteAttractionServiceImpl implements ITourRouteAttractionServi
 
     @Override
     public void DeleteTourRouteAttraction(long id) {
-
+        TourRouteAttraction tourRouteAttraction = tourRouteAttractionRepository.findById(id).orElse(null);
+        if (tourRouteAttraction == null) {
+            throw new TouristAttractionNotFound("Không tìm thấy lịch trình");
+        }
+        tourRouteAttractionRepository.deleteById(id);
     }
 }
