@@ -16,6 +16,7 @@ import com.javaweb.tour_booking.repository.TouristAttractionRepository;
 import com.javaweb.tour_booking.service.ITourRouteAttractionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class TourRouteAttractionServiceImpl implements ITourRouteAttractionServi
     private final TourRouteRepository tourRouteRepository;
     private final TouristAttractionRepository touristAttractionRepository;
     @Override
+    @Transactional(readOnly = true)
     public List<TourRouteAttractionResponse> GetAllTourRouteAttractionsByTourRouteId(Long tourRouteId) {
         // Lấy danh sách TourRouteAttraction theo tourRouteId
         List<TourRouteAttraction> tourRouteAttractions = tourRouteAttractionRepository.findByTourRouteId(tourRouteId);
