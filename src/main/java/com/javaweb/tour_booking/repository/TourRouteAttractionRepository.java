@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface TourRouteAttractionRepository extends JpaRepository<TourRouteAttraction, Long> {
     List<TourRouteAttraction> findByTouristAttraction(TouristAttraction touristAttraction);
+    List<TourRouteAttraction> findByTourRouteId(Long tourRouteId);
 }
