@@ -29,6 +29,33 @@ public class AccountServiceImpl implements IAccountService {
     private final JavaMailSender javaMailSender;
 
     @Override
+    public void sendAccountCredentialsEmail(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        User user = userRepository.findByAccount(account)
+                .orElseThrow(() -> new RuntimeException("User not found for this account"));
+
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(user.getEmail());
+            helper.setSubject("Your Account Credentials");
+            helper.setText(
+                    "<h2>Account Information</h2>" +
+                            "<p>Username: <b>" + account.getUsername() + "</b></p>" +
+                            "<p>Password: <b>" + account.getPassword() + "</b></p>" +
+                            "<p>Please change your password after logging in for security.</p>", true);
+
+            message.setHeader("X-Priority", "1");
+            message.setHeader("X-Mailer", "Spring Boot Mail Sender");
+            javaMailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send account credentials email", e);
+        }
+    }
+
+    @Override
     public void changePasswordAndSendEmail(Long accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
@@ -42,6 +69,8 @@ public class AccountServiceImpl implements IAccountService {
 
         sendNewPasswordEmail(user.getEmail(), newPassword);
     }
+
+
 
     private String generateRandomPassword(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

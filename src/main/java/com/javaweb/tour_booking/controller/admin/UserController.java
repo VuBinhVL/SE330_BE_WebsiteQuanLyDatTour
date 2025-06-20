@@ -24,7 +24,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/get/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable Long id) {
         UserDTO user = userService.getUserById(id);
         ApiResponse<UserDTO> response = new ApiResponse<>("User found", user);

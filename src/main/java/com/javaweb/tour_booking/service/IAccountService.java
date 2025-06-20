@@ -12,4 +12,5 @@ public interface IAccountService {
     boolean verifyPassword(Long accountId, String password);
     // New method for changing password and sending email
     void changePasswordAndSendEmail(Long accountId);
+    void sendAccountCredentialsEmail(Long accountId);
 }
