@@ -56,7 +56,7 @@ public class CustomerServiceImpl implements ICustomerService {
     @Override
     public List<UserDTO> getAllCustomers() {
         // Find all users with role id = 1
-        List<User> customers = userRepository.findAllByRoleId(2L);
+        List<User> customers = userRepository.findAllByRoleId(1L);
         return customers.stream()
                 .map(UserMapper::mapToUserDTO)
                 .collect(Collectors.toList());
