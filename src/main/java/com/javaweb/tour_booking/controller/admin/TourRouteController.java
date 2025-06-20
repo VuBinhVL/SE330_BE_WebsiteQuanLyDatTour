@@ -34,7 +34,7 @@ public class TourRouteController {
     }
 
     // Get a tour route by ID
-    @PostMapping("/get/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<ApiResponse<TourRouteDTO>> getTourRouteById(@PathVariable Long id) {
         TourRouteDTO tourRouteDTO = tourRouteService.getTourRouteById(id);
         ApiResponse<TourRouteDTO> response = new ApiResponse<>("Đã tìm thấy tuyến du lịch", tourRouteDTO);
