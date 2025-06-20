@@ -2,6 +2,7 @@ package com.javaweb.tour_booking.exception;
 
 import com.javaweb.tour_booking.common.ApiResponse;
 import com.javaweb.tour_booking.exception.tour.TourCannotBeDeletedException;
+import com.javaweb.tour_booking.exception.tour_route.TourRouteCannotBeDeletedException;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,11 @@ public class GlobalExceptionHandler {
     // Xử lý lỗi TourCannotBeDeletedException
     @ExceptionHandler(TourCannotBeDeletedException.class)
     public ResponseEntity<ApiResponse<Object>> handleTourCannotBeDeleted(TourCannotBeDeletedException ex) {
+        ApiResponse<Object> response = new ApiResponse<>(ex.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+    @ExceptionHandler(TourRouteCannotBeDeletedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleTourRouteCannotBeDeleted(TourRouteCannotBeDeletedException ex) {
         ApiResponse<Object> response = new ApiResponse<>(ex.getMessage(), null);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

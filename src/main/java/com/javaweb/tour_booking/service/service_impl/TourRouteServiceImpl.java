@@ -2,9 +2,12 @@ package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.FavoriteRouteDTO;
 import com.javaweb.tour_booking.dto.TourRouteDTO;
+import com.javaweb.tour_booking.entity.Tour;
 import com.javaweb.tour_booking.entity.TourRoute;
+import com.javaweb.tour_booking.exception.tour_route.TourRouteCannotBeDeletedException;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.TourRouteMapper;
+import com.javaweb.tour_booking.repository.TourRepository;
 import com.javaweb.tour_booking.repository.TourRouteRepository;
 import com.javaweb.tour_booking.service.ITourRouteService;
 import lombok.AllArgsConstructor;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class TourRouteServiceImpl implements ITourRouteService {
     private final TourRouteRepository tourRouteRepository;
+    private final TourRepository tourRepository;
 
     @Override
     public List<TourRouteDTO> getAllTourRoutes() {
@@ -65,6 +69,13 @@ public class TourRouteServiceImpl implements ITourRouteService {
         TourRoute tourRoute = tourRouteRepository.findById(id).orElse(null);
         if (tourRoute == null) {
             throw new TouristAttractionNotFound("Không tìm thấy tuyến du lịch");
+        }
+        // Kiểm tra xem có Tour nào liên kết với TourRoute này không
+        List<Tour> tours = tourRepository.findAll().stream()
+                .filter(tour -> tour.getTourRoute().getId().equals(id))
+                .collect(Collectors.toList());
+        if (!tours.isEmpty()) {
+            throw new TourRouteCannotBeDeletedException("Không thể xóa tuyến du lịch vì vẫn còn tour liên kết với tuyến này");
         }
         tourRouteRepository.deleteById(id);
     }
