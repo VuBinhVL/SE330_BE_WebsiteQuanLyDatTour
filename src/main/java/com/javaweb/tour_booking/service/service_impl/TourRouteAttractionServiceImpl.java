@@ -4,9 +4,12 @@ import com.javaweb.tour_booking.dto.TourRouteAttractionDTO;
 import com.javaweb.tour_booking.dto.response.TourRouteAttractionResponse;
 import com.javaweb.tour_booking.entity.TourRoute;
 import com.javaweb.tour_booking.entity.TourRouteAttraction;
+import com.javaweb.tour_booking.entity.TouristAttraction;
 import com.javaweb.tour_booking.mapper.TourRouteAttactionMapper;
 import com.javaweb.tour_booking.mapper.TourRouteMapper;
 import com.javaweb.tour_booking.repository.TourRouteAttractionRepository;
+import com.javaweb.tour_booking.repository.TourRouteRepository;
+import com.javaweb.tour_booking.repository.TouristAttractionRepository;
 import com.javaweb.tour_booking.service.ITourRouteAttractionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class TourRouteAttractionServiceImpl implements ITourRouteAttractionService {
     private final TourRouteAttractionRepository  tourRouteAttractionRepository;
+    private final TourRouteRepository tourRouteRepository;
+    private final TouristAttractionRepository touristAttractionRepository;
     @Override
     public List<TourRouteAttractionResponse> GetAllTourRouteAttractionsByTourRouteId(Long tourRouteId) {
         // Lấy danh sách TourRouteAttraction theo tourRouteId
@@ -48,8 +53,23 @@ public class TourRouteAttractionServiceImpl implements ITourRouteAttractionServi
     }
 
     @Override
-    public TourRouteAttractionDTO CreateTourRouteAttraction(TourRouteAttractionDTO newTourRouteAttraction) {
-        return null;
+    public TourRouteAttractionDTO CreateTourRouteAttractionByTourRouteId(TourRouteAttractionDTO newTourRouteAttraction) {
+        // Tìm TourRoute theo tourRouteId
+        TourRoute tourRoute = tourRouteRepository.findById(newTourRouteAttraction.getTourRouteId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tuyến du lịch với ID: " + newTourRouteAttraction.getTourRouteId()));
+
+        // Tìm TouristAttraction theo touristAttractionId
+        TouristAttraction touristAttraction = touristAttractionRepository.findById(newTourRouteAttraction.getTouristAttractionId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy điểm tham quan với ID: " + newTourRouteAttraction.getTouristAttractionId()));
+
+        // Chuyển đổi DTO sang entity
+        TourRouteAttraction tourRouteAttraction = TourRouteAttactionMapper.mapToTourRouteAttraction(newTourRouteAttraction, tourRoute, touristAttraction);
+
+        // Lưu entity vào database
+        TourRouteAttraction savedTourRouteAttraction = tourRouteAttractionRepository.save(tourRouteAttraction);
+
+        // Chuyển đổi entity đã lưu thành DTO để trả về
+        return TourRouteAttactionMapper.mapToTourRouteAttractionDTO(savedTourRouteAttraction);
     }
 
     @Override

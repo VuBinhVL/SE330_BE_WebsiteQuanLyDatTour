@@ -1,6 +1,7 @@
 package com.javaweb.tour_booking.controller.admin;
 
 import com.javaweb.tour_booking.common.ApiResponse;
+import com.javaweb.tour_booking.dto.TourRouteAttractionDTO;
 import com.javaweb.tour_booking.dto.response.TourRouteAttractionResponse;
 import com.javaweb.tour_booking.service.ITourRouteAttractionService;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,13 @@ public class TourRouteAttractionController {
     public ResponseEntity<ApiResponse<List<TourRouteAttractionResponse>>> getAllTourRouteAttractionsByTourRouteId(@PathVariable Long tourRouteId) {
         List<TourRouteAttractionResponse> attractions = tourRouteAttractionService.GetAllTourRouteAttractionsByTourRouteId(tourRouteId);
         ApiResponse<List<TourRouteAttractionResponse>> response = new ApiResponse<>("Lấy danh sách lịch trình theo tuyến du lịch thành công", attractions);
+        return ResponseEntity.ok(response);
+    }
+    // Create a new tour route attraction
+    @PostMapping("/create")
+    public ResponseEntity<ApiResponse<TourRouteAttractionDTO>> createTourRouteAttraction(@RequestBody TourRouteAttractionDTO newTourRouteAttraction) {
+        TourRouteAttractionDTO createdAttraction = tourRouteAttractionService.CreateTourRouteAttractionByTourRouteId(newTourRouteAttraction);
+        ApiResponse<TourRouteAttractionDTO> response = new ApiResponse<>("Tạo lịch trình theo tuyến du lịch thành công", createdAttraction);
         return ResponseEntity.ok(response);
     }
 }

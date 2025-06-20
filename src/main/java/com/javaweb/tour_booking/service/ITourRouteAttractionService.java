@@ -9,7 +9,7 @@ import java.util.List;
 public interface ITourRouteAttractionService {
     List<TourRouteAttractionResponse> GetAllTourRouteAttractionsByTourRouteId(Long tourRouteId);
     TourRouteAttractionDTO GetTourRouteAttractionById(Long id);
-    TourRouteAttractionDTO CreateTourRouteAttraction(TourRouteAttractionDTO newTourRouteAttraction);
+    TourRouteAttractionDTO CreateTourRouteAttractionByTourRouteId(TourRouteAttractionDTO newTourRouteAttraction);
     TourRouteAttractionDTO UpdateTourRouteAttraction(long id,TourRouteAttractionDTO updatedTourRouteAttraction);
     void DeleteTourRouteAttraction(long id);
 }
