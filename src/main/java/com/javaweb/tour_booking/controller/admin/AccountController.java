@@ -66,4 +66,11 @@ public class AccountController {
         ApiResponse<String> response = new ApiResponse<>("Password changed and email sent successfully", null);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/send-credentials/{id}")
+    public ResponseEntity<ApiResponse<String>> sendAccountCredentialsEmail(@PathVariable Long id) {
+        accountService.sendAccountCredentialsEmail(id);
+        ApiResponse<String> response = new ApiResponse<>("Account credentials sent to email successfully", null);
+        return ResponseEntity.ok(response);
+    }
 }
