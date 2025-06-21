@@ -32,7 +32,7 @@ public class TourRouteAttractionController {
         ApiResponse<TourRouteAttractionDTO> response = new ApiResponse<>("Tạo lịch trình theo tuyến du lịch thành công", createdAttraction);
         return ResponseEntity.ok(response);
     }
-    @PutMapping("/update/{id}")
+    @PutMapping("/update/{tourRouteAttractionId}")
     public ResponseEntity<ApiResponse<TourRouteAttractionDTO>> updateTourRouteAttraction(@PathVariable Long tourRouteAttractionId, @RequestBody TourRouteAttractionDTO updatedTourRouteAttraction) {
         TourRouteAttractionDTO updatedAttraction = tourRouteAttractionService.UpdateTourRouteAttractionByTourRouteId(tourRouteAttractionId, updatedTourRouteAttraction);
         ApiResponse<TourRouteAttractionDTO> response = new ApiResponse<>("Cập nhật lịch trình theo tuyến du lịch thành công", updatedAttraction);
