@@ -3,6 +3,8 @@ package com.javaweb.tour_booking.mapper;
 import com.javaweb.tour_booking.dto.InvoiceDTO;
 import com.javaweb.tour_booking.entity.Invoice;
 
+import java.time.LocalDateTime;
+
 public class InvoiceMapper {
     public static InvoiceDTO mapToInvoiceDTO(Invoice invoice) {
         InvoiceDTO invoiceDTO = new InvoiceDTO();
@@ -15,14 +17,24 @@ public class InvoiceMapper {
         return invoiceDTO;
     }
 
-    public static Invoice mapToInvoice(InvoiceDTO invoiceDTO) {
+    public static Invoice mapToInvoice(InvoiceDTO invoiceDTO, boolean isCreate) {
         Invoice invoice = new Invoice();
         invoice.setId(invoiceDTO.getId());
-        invoice.setCreatedAt(invoiceDTO.getCreatedAt());
-        invoice.setUpdatedAt(invoiceDTO.getUpdatedAt());
         invoice.setPaymentMethod(invoiceDTO.getPaymentMethod());
         invoice.setPaymentStatus(invoiceDTO.getPaymentStatus());
         invoice.setTotalAmount(invoiceDTO.getTotalAmount());
+
+        // Logic cho createdAt và updatedAt
+        if (isCreate) {
+            // Khi tạo mới: createdAt = thời gian hiện tại, updatedAt = null
+            invoice.setCreatedAt(LocalDateTime.now());
+            invoice.setUpdatedAt(null);
+        } else {
+            // Khi sửa: giữ nguyên createdAt, cập nhật updatedAt
+            invoice.setCreatedAt(invoiceDTO.getCreatedAt());
+            invoice.setUpdatedAt(LocalDateTime.now());
+        }
+
         return invoice;
     }
 }

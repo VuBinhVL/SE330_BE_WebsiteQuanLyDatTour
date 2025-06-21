@@ -30,10 +30,8 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
     @Override
     public InvoiceDTO CreateInvoice(InvoiceDTO newInvoice) {
-        if (newInvoice == null || newInvoice.getId() == null) {
-            throw new IllegalArgumentException("InvoiceDTO hoặc InvoiceId không được null");
-        }
-        Invoice invoice = InvoiceMapper.mapToInvoice(newInvoice);
+
+        Invoice invoice = InvoiceMapper.mapToInvoice(newInvoice,true);
         Invoice saved = invoiceRepository.save(invoice);
         return InvoiceMapper.mapToInvoiceDTO(saved);
     }
