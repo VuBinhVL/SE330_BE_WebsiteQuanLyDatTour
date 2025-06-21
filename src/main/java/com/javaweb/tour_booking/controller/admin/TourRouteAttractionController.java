@@ -41,7 +41,7 @@ public class TourRouteAttractionController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse<String>> deleteTour(@PathVariable Long id) {
         tourRouteAttractionService.DeleteTourRouteAttraction(id);
-        ApiResponse<String> response = new ApiResponse<>("Đã xóa lic trình thành công", null);
+        ApiResponse<String> response = new ApiResponse<>("Đã xóa lịch trình thành công", null);
         return ResponseEntity.ok(response);
     }
 }
