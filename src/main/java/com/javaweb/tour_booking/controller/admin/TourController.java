@@ -3,6 +3,7 @@ package com.javaweb.tour_booking.controller.admin;
 import com.javaweb.tour_booking.common.ApiResponse;
 import com.javaweb.tour_booking.dto.TourDTO;
 import com.javaweb.tour_booking.dto.TourRouteDTO;
+import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
 import com.javaweb.tour_booking.repository.TourRepository;
 import com.javaweb.tour_booking.service.ITourService;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,13 @@ public class TourController {
     public ResponseEntity<ApiResponse<TourDTO>> getTourById(@PathVariable Long id) {
         TourDTO tourDTO = tourService.GetTourById(id);
         ApiResponse<TourDTO> response = new ApiResponse<>("Đã tìm thấy chuyến du lịch", tourDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get-list-tour-booking/{id}")
+    public ResponseEntity<ApiResponse<List<TourBookingDetailResponse>>> getListTourBookingDetailByTourId(@PathVariable Long id) {
+        List<TourBookingDetailResponse> tourBookingDetailResponse = tourService.getListTourBookingDetailByTourId(id);
+        ApiResponse<List<TourBookingDetailResponse>> response = new ApiResponse<>("Danh sách phiếu đặt tour: ", tourBookingDetailResponse);
         return ResponseEntity.ok(response);
     }
     @PostMapping("/create")

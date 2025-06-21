@@ -2,17 +2,22 @@ package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.TourDTO;
 import com.javaweb.tour_booking.dto.TourRouteDTO;
+import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
 import com.javaweb.tour_booking.entity.Tour;
+import com.javaweb.tour_booking.entity.TourBookingDetail;
 import com.javaweb.tour_booking.entity.TourRoute;
+import com.javaweb.tour_booking.entity.UserMember;
 import com.javaweb.tour_booking.exception.tour.TourCannotBeDeletedException;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.TourRouteMapper;
+import com.javaweb.tour_booking.repository.TourBookingDetailRepository;
 import com.javaweb.tour_booking.repository.TourRepository;
 import com.javaweb.tour_booking.repository.TourRouteRepository;
 import com.javaweb.tour_booking.service.ITourService;
 import com.javaweb.tour_booking.mapper.TourMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +28,7 @@ import java.util.stream.Collectors;
 public class TourServiceImpl implements ITourService {
     private final TourRepository tourRepository;
     private final TourRouteRepository tourRouteRepository;
+    private final TourBookingDetailRepository tourBookingDetailRepository;
 
     @Override
     public List<TourDTO> GetAllTours() {
@@ -101,5 +107,29 @@ public class TourServiceImpl implements ITourService {
     }
         tourRepository.deleteById(id);
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<TourBookingDetailResponse> getListTourBookingDetailByTourId(Long tourId) {
+        // Lấy danh sách TourBookingDetail theo tourId
+        List<TourBookingDetail> tourBookingDetails = tourBookingDetailRepository.findByTourBookingTourId(tourId);
 
+        // Chuyển đổi từ entity sang DTO
+        return tourBookingDetails.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+    }
+    // Hàm chuyển đổi từ entity sang DTO
+    private TourBookingDetailResponse convertToResponse(TourBookingDetail tourBookingDetail) {
+        TourBookingDetailResponse response = new TourBookingDetailResponse();
+        response.setId(tourBookingDetail.getId());
+        response.setUserFullname(tourBookingDetail.getTourBooking().getUser().getFullname());
+        UserMember userMember = tourBookingDetail.getUserMember();
+        response.setUserMemberFullname(userMember.getFullname());
+        response.setUserMemberSex(userMember.getSex());
+        response.setUserMemberPhoneNumber(userMember.getPhoneNumber());
+        response.setUserMemberEmail(userMember.getEmail());
+        response.setTourBookingId(tourBookingDetail.getTourBooking().getId());
+        return response;
+    }
 }

@@ -2,16 +2,12 @@ package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.TourBookingDTO;
 import com.javaweb.tour_booking.dto.response.HistoryUserBooking;
-import com.javaweb.tour_booking.entity.Invoice;
-import com.javaweb.tour_booking.entity.Tour;
-import com.javaweb.tour_booking.entity.TourBooking;
-import com.javaweb.tour_booking.entity.User;
+import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
+import com.javaweb.tour_booking.entity.*;
+import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.exception.user.UserNotFoundException;
 import com.javaweb.tour_booking.mapper.TourBookingMapper;
-import com.javaweb.tour_booking.repository.InvoiceRepository;
-import com.javaweb.tour_booking.repository.TourBookingRepository;
-import com.javaweb.tour_booking.repository.TourRepository;
-import com.javaweb.tour_booking.repository.UserRepository;
+import com.javaweb.tour_booking.repository.*;
 import com.javaweb.tour_booking.service.ITourBookingService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +31,15 @@ public class TourBookingServiceImpl implements ITourBookingService {
     public TourBookingDTO createTourBooking(TourBookingDTO dto) {
         Tour tour = tourRepository.findById(dto.getTourId())
                 .orElseThrow(() -> new RuntimeException("Tour not found"));
+        if (tour.getStatus() == 1) {
+            throw new IllegalArgumentException("Tour đã hủy, không thể tạo phiếu");
+        }
+        if (tour.getBookedSeats() == tour.getTotalSeats()) {
+            throw new IllegalArgumentException("Tour đã đầy, không thể tạo phiếu");
+        }
+        if (dto.getSeatsBooked() + tour.getBookedSeats() > tour.getTotalSeats()) {
+            throw new IllegalArgumentException("Số phiếu đặt vượt giới hạn số lượng khách tối đa, không thể tạo phiếu");
+        }
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         Invoice invoice = null;
@@ -42,11 +47,10 @@ public class TourBookingServiceImpl implements ITourBookingService {
             invoice = invoiceRepository.findById(dto.getInvoiceId())
                     .orElseThrow(() -> new RuntimeException("Invoice not found"));
         }
-        TourBooking booking = TourBookingMapper.mapToTourBooking(dto, tour, user, invoice);
+        TourBooking booking = TourBookingMapper.mapToTourBooking(dto, tour, user, invoice, true);
         TourBooking saved = tourBookingRepository.save(booking);
         return TourBookingMapper.mapToTourBookingDTO(saved);
     }
-
     @Override
     public TourBookingDTO getTourBookingById(Long id) {
         TourBooking booking = tourBookingRepository.findById(id)
@@ -98,4 +102,6 @@ public class TourBookingServiceImpl implements ITourBookingService {
     public List<HistoryUserBooking> getHistoryByUserId(Long userId) {
         return tourBookingRepository.findHistoryByUserId(userId);
     }
+
+
 }

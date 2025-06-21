@@ -6,6 +6,8 @@ import com.javaweb.tour_booking.entity.Tour;
 import com.javaweb.tour_booking.entity.TourBooking;
 import com.javaweb.tour_booking.entity.User;
 
+import java.time.LocalDateTime;
+
 public class TourBookingMapper {
     public static TourBookingDTO mapToTourBookingDTO(TourBooking booking) {
         TourBookingDTO dto = new TourBookingDTO();
@@ -20,16 +22,23 @@ public class TourBookingMapper {
         return dto;
     }
 
-    public static TourBooking mapToTourBooking(TourBookingDTO dto, Tour tour, User user, Invoice invoice) {
+    public static TourBooking mapToTourBooking(TourBookingDTO dto, Tour tour, User user, Invoice invoice, boolean isCreate) {
         TourBooking booking = new TourBooking();
         booking.setId(dto.getId());
         booking.setSeatsBooked(dto.getSeatsBooked());
         booking.setTotalPrice(dto.getTotalPrice());
-        booking.setCreatedAt(dto.getCreatedAt());
-        booking.setUpdatedAt(dto.getUpdatedAt());
         booking.setTour(tour);
         booking.setUser(user);
         booking.setInvoice(invoice);
+
+        if (isCreate) {
+            booking.setCreatedAt(LocalDateTime.now());
+            booking.setUpdatedAt(null);
+        } else {
+            booking.setCreatedAt(dto.getCreatedAt());
+            booking.setUpdatedAt(LocalDateTime.now());
+        }
+
         return booking;
     }
 }
