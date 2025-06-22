@@ -3,6 +3,7 @@ package com.javaweb.tour_booking.controller.admin;
 import com.javaweb.tour_booking.common.ApiResponse;
 import com.javaweb.tour_booking.dto.TouristAttractionDTO;
 import com.javaweb.tour_booking.dto.request.TouristAttractionUpdateRequest;
+import com.javaweb.tour_booking.dto.response.FavoriteTouristAttractionResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionDetailResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionResponse;
 import com.javaweb.tour_booking.entity.TouristAttraction;
@@ -74,5 +75,11 @@ public class TouristAttractionController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Cập nhật thất bại"));
         }
+    }
+    @GetMapping("/top-5-favorite")
+    public ResponseEntity<ApiResponse<List<FavoriteTouristAttractionResponse>>> getTop5FavoriteTouristAttractions() {
+        List<FavoriteTouristAttractionResponse> attractions = touristAttractionService.getTop5FavoriteTouristAttractions();
+        ApiResponse<List<FavoriteTouristAttractionResponse>> response = new ApiResponse<>("Lấy top 5 địa điểm du lịch được ưa thích thành công", attractions);
+        return ResponseEntity.ok(response);
     }
 }

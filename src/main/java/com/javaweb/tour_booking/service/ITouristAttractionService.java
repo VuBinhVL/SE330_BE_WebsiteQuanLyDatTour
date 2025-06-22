@@ -1,6 +1,7 @@
 package com.javaweb.tour_booking.service;
 
 import com.javaweb.tour_booking.dto.request.TouristAttractionUpdateRequest;
+import com.javaweb.tour_booking.dto.response.FavoriteTouristAttractionResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionDetailResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionResponse;
 import com.javaweb.tour_booking.entity.TouristAttraction;
@@ -18,4 +19,5 @@ public interface ITouristAttractionService {
     public void createTouristAttraction(String name, String location, String description, Long categoryId, List<MultipartFile> images);
 
     public void updateTouristAttraction(Long id, TouristAttractionUpdateRequest req);
+    List<FavoriteTouristAttractionResponse> getTop5FavoriteTouristAttractions();
 }

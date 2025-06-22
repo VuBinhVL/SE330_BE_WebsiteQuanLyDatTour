@@ -1,6 +1,7 @@
 package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.request.TouristAttractionUpdateRequest;
+import com.javaweb.tour_booking.dto.response.FavoriteTouristAttractionResponse;
 import com.javaweb.tour_booking.dto.response.GalleryResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionDetailResponse;
 import com.javaweb.tour_booking.dto.response.TouristAttractionResponse;
@@ -161,4 +162,28 @@ public class TouristAttractionServiceImpl implements ITouristAttractionService {
         touristAttractionRepository.save(ta);
 
 }
+    @Override
+    public List<FavoriteTouristAttractionResponse> getTop5FavoriteTouristAttractions() {
+        List<Object[]> results = touristAttractionRepository.findTop5ByBookedSeats();
+
+        return results.stream()
+                .map(result -> {
+                    TouristAttraction attraction = (TouristAttraction) result[0];
+                    // Lấy ảnh đầu tiên từ Galley
+                    String image = galleyRepository.findByTouristAttraction(attraction)
+                            .stream()
+                            .findFirst()
+                            .map(Galley::getThumbNail)
+                            .orElse(null);
+                    return new FavoriteTouristAttractionResponse(
+                            attraction.getId(),
+                            attraction.getName(),
+                            attraction.getLocation(),
+                            attraction.getCategory().getName(),
+                            image
+                    );
+                })
+                .limit(5) // Đảm bảo chỉ lấy 5 kết quả
+                .collect(Collectors.toList());
+    }
 }
