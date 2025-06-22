@@ -2,6 +2,7 @@ package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.TourDTO;
 import com.javaweb.tour_booking.dto.TourRouteDTO;
+import com.javaweb.tour_booking.dto.response.PopularTourRouteResponse;
 import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
 import com.javaweb.tour_booking.entity.Tour;
 import com.javaweb.tour_booking.entity.TourBookingDetail;
@@ -19,7 +20,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -131,5 +134,46 @@ public class TourServiceImpl implements ITourService {
         response.setUserMemberEmail(userMember.getEmail());
         response.setTourBookingId(tourBookingDetail.getTourBooking().getId());
         return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PopularTourRouteResponse> getTop5PopularTourRoutes() {
+        LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
+        List<Object[]> results = tourRouteRepository.findTop5PopularTourRoutes(sixMonthsAgo);
+
+        return results.stream()
+                .map(result -> {
+                    Long id = ((Number) result[0]).longValue();
+                    String routeName = (String) result[1];
+                    String startLocation = (String) result[2];
+                    String endLocation = (String) result[3];
+                    Long totalBookedSeats = result[4] != null ? ((Number) result[4]).longValue() : 0L;
+                    BigDecimal latestPrice = result[5] != null ? new BigDecimal(result[5].toString()) : null;
+                    String image = (String) result[6];
+                    Integer durationDays = result[7] != null ? ((Number) result[7]).intValue() : null;
+                    String recentStartDatesStr = (String) result[8];
+
+                    List<LocalDateTime> recentStartDates = recentStartDatesStr != null && !recentStartDatesStr.isEmpty()
+                            ? Arrays.stream(recentStartDatesStr.split(","))
+                            .map(String::trim)
+                            .map(s -> LocalDateTime.parse(s.replace(" ", "T")))
+                            .collect(Collectors.toList())
+                            : List.of();
+
+                    return new PopularTourRouteResponse(
+                            id,
+                            routeName,
+                            startLocation,
+                            endLocation,
+                            totalBookedSeats,
+                            latestPrice,
+                            image,
+                            durationDays != null ? durationDays.longValue() : 0L,
+                            recentStartDates
+                    );
+                })
+                .limit(5)
+                .collect(Collectors.toList());
     }
 }

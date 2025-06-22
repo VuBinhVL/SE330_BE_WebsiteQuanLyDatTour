@@ -2,6 +2,8 @@ package com.javaweb.tour_booking.controller.admin;
 
 import com.javaweb.tour_booking.common.ApiResponse;
 import com.javaweb.tour_booking.dto.*;
+import com.javaweb.tour_booking.dto.response.FavoriteTouristAttractionResponse;
+import com.javaweb.tour_booking.dto.response.PopularTourRouteResponse;
 import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
 import com.javaweb.tour_booking.repository.TourRepository;
 import com.javaweb.tour_booking.service.IBookingTransactionService;
@@ -55,6 +57,12 @@ public class TourController {
     public ResponseEntity<ApiResponse<String>> deleteTour(@PathVariable Long id) {
         tourService.DeleteTour(id);
         ApiResponse<String> response = new ApiResponse<>("Đã xóa chuyến du lịch thành công", null);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/top-5-popular-tour-routes")
+    public ResponseEntity<ApiResponse<List<PopularTourRouteResponse>>> getTop5PopularTourRoutes() {
+        List<PopularTourRouteResponse> attractions = tourService.getTop5PopularTourRoutes();
+        ApiResponse<List<PopularTourRouteResponse>> response = new ApiResponse<>("Lấy top 5 tuyến du lịch được ưa thích thành công", attractions);
         return ResponseEntity.ok(response);
     }
     @PostMapping("/create-booking-transaction")
