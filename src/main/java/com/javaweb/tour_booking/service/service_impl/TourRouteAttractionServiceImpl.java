@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +37,7 @@ public class TourRouteAttractionServiceImpl implements ITourRouteAttractionServi
         // Chuyển đổi từ entity sang DTO
         return tourRouteAttractions.stream()
                 .map(this::convertToResponse)
+                .sorted(Comparator.comparingInt(TourRouteAttractionResponse::getOrderAction))
                 .collect(Collectors.toList());
     }
 
@@ -78,40 +80,128 @@ public class TourRouteAttractionServiceImpl implements ITourRouteAttractionServi
     }
 
     @Override
+    @Transactional
     public TourRouteAttractionDTO UpdateTourRouteAttractionByTourRouteId(long tourRouteAttractionId, TourRouteAttractionDTO updatedTourRouteAttraction) {
-        // Tìm TourRouteAttraction theo ID
+        // Tìm TourRouteAttraction cần cập nhật
         TourRouteAttraction tourRouteAttraction = tourRouteAttractionRepository.findById(tourRouteAttractionId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy lịch trình với ID: " + tourRouteAttractionId));
 
-        // Tìm TourRoute theo tourRouteId
+        // Tìm TourRoute
         TourRoute tourRoute = tourRouteRepository.findById(updatedTourRouteAttraction.getTourRouteId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tuyến du lịch với ID: " + updatedTourRouteAttraction.getTourRouteId()));
 
-        // Tìm TouristAttraction theo touristAttractionId
+        // Tìm TouristAttraction
         TouristAttraction touristAttraction = touristAttractionRepository.findById(updatedTourRouteAttraction.getTouristAttractionId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy điểm tham quan với ID: " + updatedTourRouteAttraction.getTouristAttractionId()));
 
-        // Cập nhật các trường của TourRouteAttraction
-        tourRouteAttraction.setOrderAction(updatedTourRouteAttraction.getOrderAction());
-        tourRouteAttraction.setDay(updatedTourRouteAttraction.getDay());
+        // Lấy danh sách tất cả TourRouteAttraction thuộc tourRouteId
+        List<TourRouteAttraction> attractions = tourRouteAttractionRepository.findByTourRouteId(updatedTourRouteAttraction.getTourRouteId());
+
+        // Lấy thông tin hiện tại của bản ghi cần cập nhật
+        int oldOrderAction = tourRouteAttraction.getOrderAction();
+        int oldDay = tourRouteAttraction.getDay();
+        int newOrderAction = updatedTourRouteAttraction.getOrderAction();
+        int newDay = updatedTourRouteAttraction.getDay();
+
+        // Cập nhật bản ghi hiện tại
+        tourRouteAttraction.setOrderAction(newOrderAction);
+        tourRouteAttraction.setDay(newDay);
         tourRouteAttraction.setActionDescription(updatedTourRouteAttraction.getActionDescription());
         tourRouteAttraction.setTourRoute(tourRoute);
         tourRouteAttraction.setTouristAttraction(touristAttraction);
 
-        // Lưu entity đã cập nhật vào database
+        // Điều chỉnh orderAction và day
+        if (oldOrderAction != newOrderAction || oldDay != newDay) {
+            if (oldDay != newDay) {
+                // Cập nhật day cũ
+                List<TourRouteAttraction> oldDayAttractions = attractions.stream()
+                        .filter(a -> a.getDay() == oldDay && a.getId() != tourRouteAttractionId)
+                        .sorted(Comparator.comparingInt(TourRouteAttraction::getOrderAction))
+                        .collect(Collectors.toList());
+                for (int i = 0; i < oldDayAttractions.size(); i++) {
+                    oldDayAttractions.get(i).setOrderAction(i + 1);
+                }
+
+                // Cập nhật day mới
+                List<TourRouteAttraction> newDayAttractions = attractions.stream()
+                        .filter(a -> a.getDay() == newDay && a.getId() != tourRouteAttractionId)
+                        .sorted(Comparator.comparingInt(TourRouteAttraction::getOrderAction))
+                        .collect(Collectors.toList());
+                for (int i = 0; i < newDayAttractions.size(); i++) {
+                    TourRouteAttraction attr = newDayAttractions.get(i);
+                    if (attr.getOrderAction() >= newOrderAction) {
+                        attr.setOrderAction(i + 2); // +2 để nhường chỗ cho bản ghi mới
+                    } else {
+                        attr.setOrderAction(i + 1);
+                    }
+                }
+            } else {
+                // Cập nhật orderAction trong cùng day
+                List<TourRouteAttraction> sameDayAttractions = attractions.stream()
+                        .filter(a -> a.getDay() == newDay && a.getId() != tourRouteAttractionId)
+                        .sorted(Comparator.comparingInt(TourRouteAttraction::getOrderAction))
+                        .collect(Collectors.toList());
+
+                if (newOrderAction < oldOrderAction) {
+                    // Ví dụ: 5 → 3, tăng các orderAction từ 3 đến 4 lên 1
+                    for (TourRouteAttraction attr : sameDayAttractions) {
+                        if (attr.getOrderAction() >= newOrderAction && attr.getOrderAction() < oldOrderAction) {
+                            attr.setOrderAction(attr.getOrderAction() + 1);
+                        }
+                    }
+                } else {
+                    // Ví dụ: 3 → 5, giảm các orderAction từ 4 đến 5 đi 1
+                    for (TourRouteAttraction attr : sameDayAttractions) {
+                        if (attr.getOrderAction() > oldOrderAction && attr.getOrderAction() <= newOrderAction) {
+                            attr.setOrderAction(attr.getOrderAction() - 1);
+                        }
+                    }
+                }
+            }
+
+            // Lưu tất cả các bản ghi đã thay đổi
+            tourRouteAttractionRepository.saveAll(attractions);
+        }
+
+        // Lưu bản ghi chính đã cập nhật
         TourRouteAttraction updatedEntity = tourRouteAttractionRepository.save(tourRouteAttraction);
 
         // Chuyển đổi entity đã cập nhật thành DTO để trả về
         return TourRouteAttactionMapper.mapToTourRouteAttractionDTO(updatedEntity);
     }
-
-
     @Override
+    @Transactional
     public void DeleteTourRouteAttraction(long id) {
-        TourRouteAttraction tourRouteAttraction = tourRouteAttractionRepository.findById(id).orElse(null);
-        if (tourRouteAttraction == null) {
-            throw new TouristAttractionNotFound("Không tìm thấy lịch trình");
-        }
+        // Tìm TourRouteAttraction cần xóa
+        TourRouteAttraction tourRouteAttraction = tourRouteAttractionRepository.findById(id)
+                .orElseThrow(() -> new TouristAttractionNotFound("Không tìm thấy lịch trình với ID: " + id));
+
+        // Lấy tourRouteId và day của bản ghi cần xóa
+        Long tourRouteId = tourRouteAttraction.getTourRoute().getId();
+        int day = tourRouteAttraction.getDay();
+        int deletedOrderAction = tourRouteAttraction.getOrderAction();
+
+        // Xóa bản ghi
         tourRouteAttractionRepository.deleteById(id);
+
+        // Lấy danh sách tất cả TourRouteAttraction còn lại trong cùng tourRouteId và day
+        List<TourRouteAttraction> remainingAttractions = tourRouteAttractionRepository.findByTourRouteId(tourRouteId)
+                .stream()
+                .filter(a -> a.getDay() == day)
+                .sorted(Comparator.comparingInt(TourRouteAttraction::getOrderAction))
+                .collect(Collectors.toList());
+
+        // Cập nhật lại orderAction cho các bản ghi còn lại
+        for (int i = 0; i < remainingAttractions.size(); i++) {
+            TourRouteAttraction attr = remainingAttractions.get(i);
+            if (attr.getOrderAction() > deletedOrderAction) {
+                attr.setOrderAction(attr.getOrderAction() - 1);
+            }
+        }
+
+        // Lưu các bản ghi đã cập nhật
+        if (!remainingAttractions.isEmpty()) {
+            tourRouteAttractionRepository.saveAll(remainingAttractions);
+        }
     }
 }
