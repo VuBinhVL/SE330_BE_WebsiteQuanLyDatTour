@@ -1,10 +1,10 @@
 package com.javaweb.tour_booking.controller.admin;
 
 import com.javaweb.tour_booking.common.ApiResponse;
-import com.javaweb.tour_booking.dto.TourDTO;
-import com.javaweb.tour_booking.dto.TourRouteDTO;
+import com.javaweb.tour_booking.dto.*;
 import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
 import com.javaweb.tour_booking.repository.TourRepository;
+import com.javaweb.tour_booking.service.IBookingTransactionService;
 import com.javaweb.tour_booking.service.ITourService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TourController {
     private final ITourService tourService;
+    private final IBookingTransactionService bookingTransactionService;
     @GetMapping("/get-all")
     public ResponseEntity<ApiResponse<List<TourDTO>>> getAllTours() {
         List<TourDTO> tours = tourService.GetAllTours();
@@ -55,6 +56,35 @@ public class TourController {
         tourService.DeleteTour(id);
         ApiResponse<String> response = new ApiResponse<>("Đã xóa chuyến du lịch thành công", null);
         return ResponseEntity.ok(response);
+    }
+    @PostMapping("/create-booking-transaction")
+    public ResponseEntity<ApiResponse<String>> createBookingTransaction(@RequestBody BookingTransactionRequest request) {
+        try {
+            bookingTransactionService.createBookingTransaction(
+                    request.getInvoiceDTO(),
+                    request.getTourBookingDTO(),
+                    request.getTourBookingDetailDTO()
+            );
+            ApiResponse<String> response = new ApiResponse<>("Tạo giao dịch đặt tour thành công", null);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Lỗi: " + e.getMessage(), null);
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // Class DTO để nhận request
+    public static class BookingTransactionRequest {
+        private InvoiceDTO invoiceDTO;
+        private TourBookingDTO tourBookingDTO;
+        private TourBookingDetailDTO tourBookingDetailDTO;
+
+        public InvoiceDTO getInvoiceDTO() { return invoiceDTO; }
+        public void setInvoiceDTO(InvoiceDTO invoiceDTO) { this.invoiceDTO = invoiceDTO; }
+        public TourBookingDTO getTourBookingDTO() { return tourBookingDTO; }
+        public void setTourBookingDTO(TourBookingDTO tourBookingDTO) { this.tourBookingDTO = tourBookingDTO; }
+        public TourBookingDetailDTO getTourBookingDetailDTO() { return tourBookingDetailDTO; }
+        public void setTourBookingDetailDTO(TourBookingDetailDTO tourBookingDetailDTO) { this.tourBookingDetailDTO = tourBookingDetailDTO; }
     }
 
 }
