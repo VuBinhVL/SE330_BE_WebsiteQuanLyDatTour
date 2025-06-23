@@ -43,7 +43,7 @@ public class TourServiceImpl implements ITourService {
 
     @Override
     public TourDTO GetTourById(Long id) {
-        Tour tour= tourRepository.getById(id);
+        Tour tour = tourRepository.getById(id);
         if (tour == null) {
             throw new TouristAttractionNotFound("Không tìm thấy chuyến du lịch");
         }
@@ -99,17 +99,19 @@ public class TourServiceImpl implements ITourService {
         // Ánh xạ sang TourDTO và trả về
         return TourMapper.mapToTourDTO(saved);
     }
+
     @Override
     public void DeleteTour(long id) {
         Tour tour = tourRepository.findById(id).orElse(null);
         if (tour == null) {
             throw new TouristAttractionNotFound("Không tìm thấy chuyến du lịch");
         }
-         if (tour.getBookedSeats() > 0) {
-        throw new TourCannotBeDeletedException("Không thể xóa chuyến du lịch vì đã có ghế được đặt");
-    }
+        if (tour.getBookedSeats() > 0) {
+            throw new TourCannotBeDeletedException("Không thể xóa chuyến du lịch vì đã có ghế được đặt");
+        }
         tourRepository.deleteById(id);
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<TourBookingDetailResponse> getListTourBookingDetailByTourId(Long tourId) {
@@ -122,6 +124,7 @@ public class TourServiceImpl implements ITourService {
                 .collect(Collectors.toList());
 
     }
+
     // Hàm chuyển đổi từ entity sang DTO
     private TourBookingDetailResponse convertToResponse(TourBookingDetail tourBookingDetail) {
         TourBookingDetailResponse response = new TourBookingDetailResponse();
@@ -135,7 +138,6 @@ public class TourServiceImpl implements ITourService {
         response.setTourBookingId(tourBookingDetail.getTourBooking().getId());
         return response;
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<PopularTourRouteResponse> getTop5PopularTourRoutes() {
@@ -149,15 +151,16 @@ public class TourServiceImpl implements ITourService {
                     String startLocation = (String) result[2];
                     String endLocation = (String) result[3];
                     Long totalBookedSeats = result[4] != null ? ((Number) result[4]).longValue() : 0L;
-                    BigDecimal latestPrice = result[5] != null ? new BigDecimal(result[5].toString()) : null;
+                    BigDecimal latestPrice = result[5] != null ? new BigDecimal(result[5].toString()) : BigDecimal.ZERO;
                     String image = (String) result[6];
-                    Integer durationDays = result[7] != null ? ((Number) result[7]).intValue() : null;
+                    Integer durationDays = result[7] != null ? ((Number) result[7]).intValue() : 0;
                     String recentStartDatesStr = (String) result[8];
 
                     List<LocalDateTime> recentStartDates = recentStartDatesStr != null && !recentStartDatesStr.isEmpty()
                             ? Arrays.stream(recentStartDatesStr.split(","))
                             .map(String::trim)
                             .map(s -> LocalDateTime.parse(s.replace(" ", "T")))
+                            .filter(date -> date.isAfter(LocalDateTime.now()) || date.isEqual(LocalDateTime.now()))
                             .collect(Collectors.toList())
                             : List.of();
 
@@ -173,7 +176,9 @@ public class TourServiceImpl implements ITourService {
                             recentStartDates
                     );
                 })
+                .filter(response -> !response.getRecentStartDates().isEmpty()) // Chỉ giữ các tuyến có ngày khởi hành trong tương lai
                 .limit(5)
                 .collect(Collectors.toList());
     }
+
 }
