@@ -1,6 +1,9 @@
 package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.FavoriteRouteDTO;
+import com.javaweb.tour_booking.dto.response.TourRouteSearchResponse;
+import com.javaweb.tour_booking.entity.Tour;
+import com.javaweb.tour_booking.entity.TourRoute;
 import com.javaweb.tour_booking.dto.TourRouteDTO;
 import com.javaweb.tour_booking.entity.Tour;
 import com.javaweb.tour_booking.entity.TourRoute;
@@ -15,12 +18,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class TourRouteServiceImpl implements ITourRouteService {
     private final TourRouteRepository tourRouteRepository;
     private final TourRepository tourRepository;
+
+    private String getInitials(String str) {
+        if (str == null || str.isBlank()) return "";
+        return Arrays.stream(str.trim().split("\\s+"))
+                .filter(s -> !s.isEmpty())
+                .map(s -> s.substring(0, 1).toUpperCase())
+                .collect(Collectors.joining());
+    }
 
     @Override
     public List<TourRouteDTO> getAllTourRoutes() {
@@ -84,5 +100,70 @@ public class TourRouteServiceImpl implements ITourRouteService {
     public List<FavoriteRouteDTO> getTop4FavoriteRoutes() {
         List<FavoriteRouteDTO> favoriteRoutes = tourRouteRepository.findFavoriteRoutes();
         return favoriteRoutes.stream().limit(4).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TourRouteSearchResponse> searchTourRoutes() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // Get all tour routes
+        List<TourRoute> tourRoutes = tourRouteRepository.findAll();
+
+        // Get all tours with status = 0 and depatureDate >= today
+        List<Tour> activeTours = tourRepository.findAll().stream()
+                .filter(tour -> tour.getStatus() == 0 && !tour.getDepatureDate().isBefore(now))
+                .collect(Collectors.toList());
+
+        // Group tours by tourRouteId
+        Map<Long, List<Tour>> toursByRoute = activeTours.stream()
+                .collect(Collectors.groupingBy(tour -> tour.getTourRoute().getId()));
+
+        List<TourRouteSearchResponse> responses = new ArrayList<>();
+
+        for (TourRoute route : tourRoutes) {
+            List<Tour> tours = toursByRoute.getOrDefault(route.getId(), Collections.emptyList());
+            if (tours.isEmpty()) continue; // Skip if no active tours
+
+            // Sort tours by depatureDate ascending
+            tours.sort(Comparator.comparing(Tour::getDepatureDate));
+
+            // Get the tour with the nearest depatureDate
+            Tour nearestTour = tours.get(0);
+
+            // Build code: startLocation + endLocation + routeId
+            // Usage in your loop:
+            String code = getInitials(route.getStartLocation()) +
+                    getInitials(route.getEndLocation()) +
+                    route.getId();
+
+            // Calculate duration and nights
+            int duration = (int) java.time.Duration.between(
+                    nearestTour.getDepatureDate().toLocalDate().atStartOfDay(),
+                    nearestTour.getReturnDate().toLocalDate().atStartOfDay()
+            ).toDays() + 1;
+            int nights = duration - 1;
+
+            // Collect all start dates for this route
+            List<LocalDate> startDates = tours.stream()
+                    .map(t -> t.getDepatureDate().toLocalDate())
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            responses.add(new TourRouteSearchResponse(
+                    route.getId(),
+                    route.getRouteName(),
+                    code,
+                    duration,
+                    nights,
+                    nearestTour.getPrice(),
+                    route.getStartLocation(),
+                    route.getEndLocation(),
+                    startDates,
+                    route.getImage()
+            ));
+        }
+
+        return responses;
     }
 }
