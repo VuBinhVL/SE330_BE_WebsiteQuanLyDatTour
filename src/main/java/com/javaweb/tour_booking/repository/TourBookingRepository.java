@@ -8,9 +8,10 @@ import com.javaweb.tour_booking.dto.response.HistoryUserBooking;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
+import java.util.Optional;
 
 public interface TourBookingRepository extends JpaRepository<TourBooking, Long> {
-
+    Optional<TourBooking> findByInvoiceId(Long invoiceId);
     @Query("SELECT new com.javaweb.tour_booking.dto.response.HistoryUserBooking(" +
             "tb.id, tb.seatsBooked, tb.totalPrice, tb.createdAt, tb.updatedAt, " +
             "t.id, tr.id, tr.routeName, u.id, i.id, i.paymentStatus) " +

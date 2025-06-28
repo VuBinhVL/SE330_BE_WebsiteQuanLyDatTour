@@ -15,6 +15,7 @@ import com.javaweb.tour_booking.service.IInvoiceService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,39 +25,66 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class InvoiceServiceImpl implements IInvoiceService {
     private final InvoiceRepository invoiceRepository;
-    private final TourBookingRepository tourBookingRepository;
+    private final TourBookingRepository bookingRepository;
 
     @Override
     public List<InvoiceDTO> GetAllInvoices() {
-        return null;
+        return invoiceRepository.findAll().stream()
+                .map(invoice -> {
+                    // Truy vấn user từ booking
+                    return bookingRepository.findByInvoiceId(invoice.getId())
+                            .map(booking -> InvoiceMapper.mapToInvoiceDTO(invoice, booking.getUser()))
+                            .orElseGet(() -> InvoiceMapper.mapToInvoiceDTO(invoice, null));
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public InvoiceDTO GetInvoiceById(Long id) {
-        return null;
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + id));
+
+        return bookingRepository.findByInvoiceId(id)
+                .map(booking -> InvoiceMapper.mapToInvoiceDTO(invoice, booking.getUser()))
+                .orElseGet(() -> InvoiceMapper.mapToInvoiceDTO(invoice, null));
     }
+
+    // Các method Create, Update, Delete giữ nguyên
+
+
 
     @Override
     public InvoiceDTO CreateInvoice(InvoiceDTO newInvoice) {
-
-        Invoice invoice = InvoiceMapper.mapToInvoice(newInvoice,true);
+        Invoice invoice = InvoiceMapper.mapToInvoice(newInvoice, true);
         Invoice saved = invoiceRepository.save(invoice);
         return InvoiceMapper.mapToInvoiceDTO(saved);
     }
 
     @Override
     public InvoiceDTO UpdateInvoice(long id, InvoiceDTO updatedInvoice) {
-        return null;
+        Invoice existing = invoiceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + id));
+
+        existing.setPaymentMethod(updatedInvoice.getPaymentMethod());
+        existing.setPaymentStatus(updatedInvoice.getPaymentStatus());
+        existing.setTotalAmount(updatedInvoice.getTotalAmount());
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        Invoice saved = invoiceRepository.save(existing);
+        return InvoiceMapper.mapToInvoiceDTO(saved);
     }
 
     @Override
     public void DeleteInvoice(long id) {
-
+        if (!invoiceRepository.existsById(id)) {
+            throw new RuntimeException("Invoice not found with id: " + id);
+        }
+        invoiceRepository.deleteById(id);
     }
 
     @Override
     public List<InvoiceHistoryResponse> getHistoryInvoiceByUserId(long userId) {
-        List<TourBooking> bookings = tourBookingRepository.findByUserId(userId);
+        List<TourBooking> bookings = bookingRepository.findByUserId(userId);
 
         // Gom nhóm theo Invoice
         Map<Long, List<TourBooking>> grouped = bookings.stream()

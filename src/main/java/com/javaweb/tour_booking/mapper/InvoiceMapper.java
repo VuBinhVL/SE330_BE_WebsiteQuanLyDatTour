@@ -1,5 +1,5 @@
 package com.javaweb.tour_booking.mapper;
-
+import com.javaweb.tour_booking.entity.User;
 import com.javaweb.tour_booking.dto.InvoiceDTO;
 import com.javaweb.tour_booking.entity.Invoice;
 
@@ -7,6 +7,11 @@ import java.time.LocalDateTime;
 
 public class InvoiceMapper {
     public static InvoiceDTO mapToInvoiceDTO(Invoice invoice) {
+        return mapToInvoiceDTO(invoice, null); // fallback
+    }
+
+    // OVERLOAD method cho phép truyền user từ booking
+    public static InvoiceDTO mapToInvoiceDTO(Invoice invoice, User user) {
         InvoiceDTO invoiceDTO = new InvoiceDTO();
         invoiceDTO.setId(invoice.getId());
         invoiceDTO.setCreatedAt(invoice.getCreatedAt());
@@ -14,6 +19,15 @@ public class InvoiceMapper {
         invoiceDTO.setPaymentMethod(invoice.getPaymentMethod());
         invoiceDTO.setPaymentStatus(invoice.getPaymentStatus());
         invoiceDTO.setTotalAmount(invoice.getTotalAmount());
+
+        if (user != null) {
+            invoiceDTO.setUser(UserMapper.mapToUserDTO(user));
+            invoiceDTO.setCustomerName(user.getFullname());
+        } else {
+            invoiceDTO.setUser(null);
+            invoiceDTO.setCustomerName("Không rõ");
+        }
+
         return invoiceDTO;
     }
 

@@ -19,4 +19,7 @@ public class InvoiceDTO {
     private String paymentMethod;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private UserDTO user;
+    private String customerName;
 }

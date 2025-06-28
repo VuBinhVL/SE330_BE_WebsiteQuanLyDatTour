@@ -21,4 +21,8 @@ public class TourBookingDTO {
     private Long tourId;
     private Long userId;
     private Long invoiceId;
+    private UserDTO user;
+    private TourDTO tour;
+    private TourRouteDTO tourRoute;
+    private int tourStatus;
 }

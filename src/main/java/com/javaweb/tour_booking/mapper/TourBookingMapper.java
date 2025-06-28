@@ -18,7 +18,18 @@ public class TourBookingMapper {
         dto.setUpdatedAt(booking.getUpdatedAt());
         dto.setTourId(booking.getTour().getId());
         dto.setUserId(booking.getUser().getId());
+        dto.setTourStatus(booking.getTour().getStatus());
         dto.setInvoiceId(booking.getInvoice() != null ? booking.getInvoice().getId() : null);
+        // map user
+        dto.setUser(UserMapper.mapToUserDTO(booking.getUser()));
+
+        // map tour
+        dto.setTour(TourMapper.mapToTourDTO(booking.getTour()));
+
+        // map tourRoute (nested from tour)
+        if (booking.getTour().getTourRoute() != null) {
+            dto.setTourRoute(TourRouteMapper.mapToTourRouteDTO(booking.getTour().getTourRoute()));
+        }
         return dto;
     }
 

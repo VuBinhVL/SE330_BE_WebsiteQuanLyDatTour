@@ -25,4 +25,6 @@ public class UserDTO {
     private LocalDateTime updatedAt;
     private Long role_id;
     private Long account_id;
+
+    private AccountDTO account;
 }

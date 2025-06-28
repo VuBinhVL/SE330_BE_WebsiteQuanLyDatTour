@@ -20,6 +20,10 @@ public class UserMapper {
         userDTO.setUpdatedAt(user.getUpdatedAt());
         userDTO.setRole_id(user.getRole().getId());
         userDTO.setAccount_id(user.getAccount().getId());
+        if (user.getAccount() != null) {
+            userDTO.setAccount_id(user.getAccount().getId());
+            userDTO.setAccount(AccountMapper.mapToAccountDTO(user.getAccount()));
+        }
         return userDTO;
     }
 
