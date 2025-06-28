@@ -25,6 +25,8 @@ public class CartItemServiceImpl implements ICartItemService {
     private CartItemRepository cartItemRepository;
     private CartRepository cartRepository;
     private TourRepository tourRepository;
+
+    //Lấy danh sách các item trong giỏ hàng
     @Override
     public List<CartItemResponse> getCartItemsByUserId(Long userId) {
         //1. Tìm giỏ hàng
@@ -38,20 +40,11 @@ public class CartItemServiceImpl implements ICartItemService {
             Tour tour = cartItem.getTour();
             TourRoute route = tour.getTourRoute();
 
-            // Tìm tất cả tour cùng route để lấy danh sách ngày đi
-            List<LocalDate> allDepartureDates = tourRepository
-                    .findByTourRouteId(route.getId())
-                    .stream()
-                    .map(Tour::getDepatureDate)
-                    .map(LocalDateTime::toLocalDate)
-                    .distinct()
-                    .sorted()
-                    .toList();
-
             Duration duration = Duration.between(tour.getDepatureDate(), tour.getReturnDate());
             long days = duration.toDays();
 
             return new CartItemResponse(
+                    cartItem.getId(),
                     route.getId(),
                     route.getRouteName(),
                     route.getImage(),
@@ -59,10 +52,19 @@ public class CartItemServiceImpl implements ICartItemService {
                     route.getEndLocation(),
                     tour.getId(),
                     days + " ngày",
-                    allDepartureDates,
+                    cartItem.getDepartureDay().toLocalDate(),
                     tour.getPrice(),
                     cartItem.getQuantity()
             );
         }).collect(Collectors.toList());
+    }
+
+    //Xóa các item trong giỏ hàng
+    @Override
+    public void deleteCartItems(List<Long> ids) {
+        for (Long id : ids) {
+            cartItemRepository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy item"));
+        }
+        cartItemRepository.deleteAllByIdInBatch(ids);
     }
 }

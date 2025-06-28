@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -22,5 +23,18 @@ public class CartControllerCustomer {
     @GetMapping("/{userId}")
     public ResponseEntity<List<CartItemResponse>> getCartByUser(@PathVariable Long userId) {
         return new ResponseEntity<>(cartService.getCartItemsByUserId(userId), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/items")
+    public ResponseEntity<?> deleteCartItems(@RequestBody List<Long> itemIds) {
+        try {
+            cartService.deleteCartItems(itemIds);
+            return ResponseEntity.ok(Map.of("message", "Xóa thành công"));
+        }
+        catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 }

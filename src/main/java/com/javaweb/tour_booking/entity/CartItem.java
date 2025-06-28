@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -24,6 +25,9 @@ public class CartItem {
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;
+
+    @Column(name = "departure_day")
+    private LocalDateTime departureDay;
 
     // Thiết lập khóa ngoại đến bảng "Tour"
     @ManyToOne(fetch = FetchType.LAZY) // LAZY để tránh load toàn bộ Tour khi không cần

@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItemResponse {
+    private Long id;
     private Long tourRouteId;
     private String routeName;
     private String routeImage;
@@ -19,7 +20,7 @@ public class CartItemResponse {
     private String endLocation;
     private Long tourId;
     private String duration; // vd: "5 ngày"
-    private List<LocalDate> departureDates;
+    private LocalDate departureDates;
     private BigDecimal price;
     private int quantity;
 }
