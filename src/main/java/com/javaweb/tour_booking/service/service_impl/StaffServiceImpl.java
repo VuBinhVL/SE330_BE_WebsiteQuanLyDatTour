@@ -83,6 +83,8 @@ public class StaffServiceImpl implements IStaffService {
     public UserDTO updateStaff(Long id, UserDTO userDTO) {
         User user = userRepository.findByIdAndRoleId(id, STAFF_ROLE_ID)
                 .orElseThrow(() -> new UserNotFoundException("Staff not found"));
+
+        // Cập nhật thông tin user
         user.setFullname(userDTO.getFullname());
         user.setEmail(userDTO.getEmail());
         user.setPhoneNumber(userDTO.getPhoneNumber());
@@ -91,9 +93,19 @@ public class StaffServiceImpl implements IStaffService {
         user.setSex(userDTO.getSex());
         user.setAvatar(userDTO.getAvatar());
         user.setUpdatedAt(userDTO.getUpdatedAt());
+
+        // Cập nhật isLock trong tài khoản
+        if (userDTO.getAccount() != null) {
+            Account account = user.getAccount();
+            if (account != null) {
+                account.setIsLock(userDTO.getAccount().getIsLock()); // <-- Dòng này rất quan trọng
+            }
+        }
+
         User updatedUser = userRepository.save(user);
         return UserMapper.mapToUserDTO(updatedUser);
     }
+
 
     @Override
     public void deleteStaff(Long id) {
