@@ -13,7 +13,7 @@ import java.util.List;
 @CrossOrigin("*")
 @RequestMapping("/api/invoice")
 @RequiredArgsConstructor
-public class InvoiceControllerCustomer {
+public class InvoiceCustomerController {
     private final IInvoiceService invoiceService;
 
     @GetMapping("/{userId}")

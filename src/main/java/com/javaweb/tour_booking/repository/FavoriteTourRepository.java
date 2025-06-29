@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface FavoriteTourRepository extends JpaRepository<FavoriteTour, Long> {
     List<FavoriteTour> findByUserId(Long userId);
+    boolean existsByUserIdAndTourRouteId(Long userId, Long tourRouteId);
+
 }
