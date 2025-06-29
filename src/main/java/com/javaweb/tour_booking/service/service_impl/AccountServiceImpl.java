@@ -18,6 +18,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.core.io.FileSystemResource;
+import com.javaweb.tour_booking.repository.CartRepository;
+import com.javaweb.tour_booking.repository.FavoriteTourRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +30,8 @@ public class AccountServiceImpl implements IAccountService {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final JavaMailSender javaMailSender;
+    private final FavoriteTourRepository favoriteTourRepository;
+    private final CartRepository cartRepository;
 
     @Override
     public void sendAccountCredentialsEmail(Long accountId) {
@@ -191,8 +195,12 @@ public class AccountServiceImpl implements IAccountService {
     public void deleteAccount(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
-        // Remove or update the user referencing this account
         userRepository.findByAccount(account).ifPresent(user -> {
+            // Delete all favorite tours of the user
+            favoriteTourRepository.deleteAll(favoriteTourRepository.findByUserId(user.getId()));
+            // Delete the cart of the user if exists
+            cartRepository.findByUserId(user.getId()).ifPresent(cartRepository::delete);
+            // Now delete the user
             userRepository.deleteById(user.getId());
         });
         accountRepository.deleteById(id);
