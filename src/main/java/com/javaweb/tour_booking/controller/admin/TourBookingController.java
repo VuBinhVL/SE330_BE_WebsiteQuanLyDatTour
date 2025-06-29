@@ -7,6 +7,7 @@ import com.javaweb.tour_booking.service.ITourBookingService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.javaweb.tour_booking.dto.response.HomeAdminBookingResponse;
 
 import java.util.List;
 
@@ -56,6 +57,13 @@ public class TourBookingController {
     public ResponseEntity<ApiResponse<List<HistoryUserBooking>>> getHistoryByUserId(@PathVariable Long userId) {
         List<HistoryUserBooking> history = tourBookingService.getHistoryByUserId(userId);
         ApiResponse<List<HistoryUserBooking>> response = new ApiResponse<>("Fetched booking history successfully", history);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/admin-home-bookings")
+    public ResponseEntity<ApiResponse<List<HomeAdminBookingResponse>>> getAllHomeAdminBookings() {
+        List<HomeAdminBookingResponse> bookings = tourBookingService.getAllHomeAdminBookings();
+        ApiResponse<List<HomeAdminBookingResponse>> response = new ApiResponse<>("Fetched admin home bookings successfully", bookings);
         return ResponseEntity.ok(response);
     }
 }

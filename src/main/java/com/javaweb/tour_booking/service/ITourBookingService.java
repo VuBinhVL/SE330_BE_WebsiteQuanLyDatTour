@@ -3,6 +3,7 @@ package com.javaweb.tour_booking.service;
 import com.javaweb.tour_booking.dto.TourBookingDTO;
 import com.javaweb.tour_booking.dto.response.HistoryUserBooking;
 import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
+import com.javaweb.tour_booking.dto.response.HomeAdminBookingResponse;
 
 import java.util.List;
 
@@ -13,5 +14,5 @@ public interface ITourBookingService {
     void deleteTourBooking(Long id);
     List<TourBookingDTO> getAllTourBookings();
     List<HistoryUserBooking> getHistoryByUserId(Long userId);
-
+    List<HomeAdminBookingResponse> getAllHomeAdminBookings();
 }
