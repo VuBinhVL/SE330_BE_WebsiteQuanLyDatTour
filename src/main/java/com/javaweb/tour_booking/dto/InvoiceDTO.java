@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,7 +20,9 @@ public class InvoiceDTO {
     private String paymentMethod;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Boolean isCanceled;
 
     private UserDTO user;
     private String customerName;
+    private List<TourBookingDTO> tourBookings;
 }

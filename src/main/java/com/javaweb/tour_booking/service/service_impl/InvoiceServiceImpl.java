@@ -1,14 +1,13 @@
 package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.InvoiceDTO;
+import com.javaweb.tour_booking.dto.TourBookingDTO;
 import com.javaweb.tour_booking.dto.response.InvoiceHistoryResponse;
 import com.javaweb.tour_booking.entity.Invoice;
-import com.javaweb.tour_booking.entity.Tour;
+import com.javaweb.tour_booking.entity.User;
 import com.javaweb.tour_booking.entity.TourBooking;
-import com.javaweb.tour_booking.entity.TourRoute;
-import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.InvoiceMapper;
-import com.javaweb.tour_booking.mapper.TourMapper;
+import com.javaweb.tour_booking.mapper.TourBookingMapper;
 import com.javaweb.tour_booking.repository.InvoiceRepository;
 import com.javaweb.tour_booking.repository.TourBookingRepository;
 import com.javaweb.tour_booking.service.IInvoiceService;
@@ -44,12 +43,23 @@ public class InvoiceServiceImpl implements IInvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + id));
 
-        return bookingRepository.findByInvoiceId(id)
-                .map(booking -> InvoiceMapper.mapToInvoiceDTO(invoice, booking.getUser()))
-                .orElseGet(() -> InvoiceMapper.mapToInvoiceDTO(invoice, null));
-    }
+        // Lấy danh sách TourBooking
+        List<TourBooking> bookings = bookingRepository.findAllByInvoiceId(id);
 
-    // Các method Create, Update, Delete giữ nguyên
+        // Lấy User từ booking đầu tiên nếu có
+        User user = bookings.isEmpty() ? null : bookings.get(0).getUser();
+
+        // Map sang DTO với user
+        InvoiceDTO invoiceDTO = InvoiceMapper.mapToInvoiceDTO(invoice, user);
+
+        // Map danh sách TourBookingDTO
+        List<TourBookingDTO> bookingDTOs = bookings.stream()
+                .map(TourBookingMapper::mapToTourBookingDTO)
+                .collect(Collectors.toList());
+
+        invoiceDTO.setTourBookings(bookingDTOs); // set danh sách booking vào DTO
+        return invoiceDTO;
+    }
 
 
 
@@ -90,6 +100,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
         Map<Long, List<TourBooking>> grouped = bookings.stream()
                 .filter(b -> b.getInvoice() != null)
                 .collect(Collectors.groupingBy(b -> b.getInvoice().getId()));
+
         List<InvoiceHistoryResponse> result = new ArrayList<>();
         for (Map.Entry<Long, List<TourBooking>> entry : grouped.entrySet()) {
             var invoice = entry.getValue().get(0).getInvoice();
@@ -97,8 +108,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
                     .map(tb -> tb.getTour().getId())
                     .collect(Collectors.toList());
 
-            int tourCount = entry.getValue().size(); // Đếm số booking thuộc invoice
-
+            int tourCount = entry.getValue().size();
 
             result.add(new InvoiceHistoryResponse(
                     invoice.getId(),

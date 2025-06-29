@@ -19,13 +19,12 @@ public class InvoiceMapper {
         invoiceDTO.setPaymentMethod(invoice.getPaymentMethod());
         invoiceDTO.setPaymentStatus(invoice.getPaymentStatus());
         invoiceDTO.setTotalAmount(invoice.getTotalAmount());
+        invoiceDTO.setIsCanceled(invoice.getIsCanceled());
+
 
         if (user != null) {
             invoiceDTO.setUser(UserMapper.mapToUserDTO(user));
             invoiceDTO.setCustomerName(user.getFullname());
-        } else {
-            invoiceDTO.setUser(null);
-            invoiceDTO.setCustomerName("Không rõ");
         }
 
         return invoiceDTO;
