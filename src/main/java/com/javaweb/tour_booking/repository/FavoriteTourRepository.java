@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface FavoriteTourRepository extends JpaRepository<FavoriteTour, Long> {
     List<FavoriteTour> findByUserId(Long userId);
     Optional<FavoriteTour> findByUserIdAndTourRouteId(Long userId, Long tourRouteId);
+    boolean existsByUserIdAndTourRouteId(Long userId, Long tourRouteId);
 }
