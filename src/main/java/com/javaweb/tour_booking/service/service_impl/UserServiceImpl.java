@@ -31,14 +31,18 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         try {
-            // Delete old avatar if exists
             String oldAvatarPath = user.getAvatar();
-            if (oldAvatarPath != null && !oldAvatarPath.isEmpty()) {
-                String relativePath = oldAvatarPath.startsWith("/") ? oldAvatarPath.substring(1) : oldAvatarPath;
-                java.nio.file.Path filePath = java.nio.file.Paths.get(relativePath).toAbsolutePath();
-                java.io.File oldAvatarFile = filePath.toFile();
-                if (oldAvatarFile.exists()) {
-                    oldAvatarFile.delete();
+            // Only try to delete if it's a local file (not a URL)
+            if (oldAvatarPath != null && !oldAvatarPath.isEmpty() && !oldAvatarPath.startsWith("http")) {
+                try {
+                    String relativePath = oldAvatarPath.startsWith("/") ? oldAvatarPath.substring(1) : oldAvatarPath;
+                    java.nio.file.Path filePath = java.nio.file.Paths.get(relativePath).toAbsolutePath();
+                    java.io.File oldAvatarFile = filePath.toFile();
+                    if (oldAvatarFile.exists()) {
+                        oldAvatarFile.delete();
+                    }
+                } catch (Exception ignored) {
+                    // Ignore any error when deleting old avatar
                 }
             }
 

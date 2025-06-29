@@ -54,7 +54,8 @@ public class CartItemServiceImpl implements ICartItemService {
                     days + " ngày",
                     cartItem.getDepartureDay().toLocalDate(),
                     tour.getPrice(),
-                    cartItem.getQuantity()
+                    cartItem.getQuantity(),
+                    tour.getTotalSeats() - tour.getBookedSeats()
             );
         }).collect(Collectors.toList());
     }

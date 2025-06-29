@@ -2,6 +2,7 @@ package com.javaweb.tour_booking.service;
 
 import com.javaweb.tour_booking.dto.FavoriteRouteDTO;
 import com.javaweb.tour_booking.dto.TourRouteDTO;
+import com.javaweb.tour_booking.dto.response.TourRouteDetailResponse;
 import com.javaweb.tour_booking.dto.response.TourRouteSearchResponse;
 
 
@@ -28,4 +29,7 @@ public interface ITourRouteService {
 
     // Search tour routes with custom response
     List<TourRouteSearchResponse> searchTourRoutes();
+
+    //Hiển thị thông tin chi tiết của 1 tourRoute
+    public TourRouteDetailResponse getDetail(Long routeId, Long userId);
 }

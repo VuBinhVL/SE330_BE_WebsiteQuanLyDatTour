@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +40,14 @@ public class FavoriteTourServiceImpl implements IFavoriteTourService {
 
     @Override
     public FavoriteTourDTO addFavoriteTour(FavoriteTourDTO favoriteTourDTO) {
+        // Check uniqueness
+        boolean exists = favoriteTourRepository
+                .findByUserIdAndTourRouteId(favoriteTourDTO.getUserID(), favoriteTourDTO.getTourRouteId())
+                .isPresent();
+        if (exists) {
+            // You can throw a custom exception here if preferred
+            return null;
+        }
         User user = userRepository.findById(favoriteTourDTO.getUserID()).orElse(null);
         TourRoute tourRoute = tourRouteRepository.findById(favoriteTourDTO.getTourRouteId()).orElse(null);
         if (user == null || tourRoute == null) return null;
@@ -75,5 +84,32 @@ public class FavoriteTourServiceImpl implements IFavoriteTourService {
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    // If you have an update method, add a similar uniqueness check there:
+    public FavoriteTourDTO updateFavoriteTour(Long id, FavoriteTourDTO favoriteTourDTO) {
+        Optional<FavoriteTour> existing = favoriteTourRepository.findById(id);
+        if (existing.isEmpty()) return null;
+
+        // Check for uniqueness, excluding the current record
+        boolean exists = favoriteTourRepository
+                .findByUserIdAndTourRouteId(favoriteTourDTO.getUserID(), favoriteTourDTO.getTourRouteId())
+                .filter(fav -> !fav.getId().equals(id))
+                .isPresent();
+        if (exists) {
+            return null;
+        }
+
+        User user = userRepository.findById(favoriteTourDTO.getUserID()).orElse(null);
+        TourRoute tourRoute = tourRouteRepository.findById(favoriteTourDTO.getTourRouteId()).orElse(null);
+        if (user == null || tourRoute == null) return null;
+
+        FavoriteTour favoriteTour = existing.get();
+        favoriteTour.setUser(user);
+        favoriteTour.setTourRoute(tourRoute);
+        // set other fields as needed
+
+        FavoriteTour saved = favoriteTourRepository.save(favoriteTour);
+        return FavotiteTourMapper.mapToFavoriteTourDTO(saved);
     }
 }

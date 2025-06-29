@@ -24,7 +24,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/get/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<ApiResponse<AccountDTO>> getAccountById(@PathVariable Long id) {
         AccountDTO account = accountService.getAccountById(id);
         ApiResponse<AccountDTO> response = new ApiResponse<>("Account found", account);

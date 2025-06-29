@@ -13,10 +13,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
+import java.io.UnsupportedEncodingException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.core.io.FileSystemResource;
+import com.javaweb.tour_booking.repository.CartRepository;
+import com.javaweb.tour_booking.repository.FavoriteTourRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +30,8 @@ public class AccountServiceImpl implements IAccountService {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final JavaMailSender javaMailSender;
+    private final FavoriteTourRepository favoriteTourRepository;
+    private final CartRepository cartRepository;
 
     @Override
     public void sendAccountCredentialsEmail(Long accountId) {
@@ -39,21 +44,46 @@ public class AccountServiceImpl implements IAccountService {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            // ⚠️ Bắt UnsupportedEncodingException
+            helper.setFrom("dangphuthien2005@gmail.com", "Tour Booking System");
+
             helper.setTo(user.getEmail());
-            helper.setSubject("Your Account Credentials");
-            helper.setText(
-                    "<h2>Account Information</h2>" +
-                            "<p>Username: <b>" + account.getUsername() + "</b></p>" +
-                            "<p>Password: <b>" + account.getPassword() + "</b></p>" +
-                            "<p>Please change your password after logging in for security.</p>", true);
+            helper.setSubject("Thông tin tài khoản - Tour Booking");
+
+            String content = """
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                <h2 style="color: #007bff;">[Tour Booking] Tài khoản của bạn</h2>
+                <p>Xin chào <b>%s</b>,</p>
+                <p>Thông tin tài khoản của bạn như sau:</p>
+                <ul>
+                    <li><b>Tên đăng nhập:</b> %s</li>
+                    <li><b>Mật khẩu:</b> %s</li>
+                </ul>
+                <p>Vui lòng đổi mật khẩu sau khi đăng nhập để đảm bảo an toàn.</p>
+                <hr style="margin-top: 30px;"/>
+                <p style="font-size: 12px; color: gray;">
+                    Đây là email tự động từ hệ thống Tour Booking. Vui lòng không phản hồi.
+                </p>
+                <p style="font-size: 12px; color: gray;">
+                    📍 Trường Đại học ABC — Khoa CNTT<br/>
+                    📧 Hỗ trợ: support@tourbooking.fake
+                </p>
+            </div>
+        """.formatted(user.getFullname(), account.getUsername(), account.getPassword());
+
+            helper.setText(content, true);
 
             message.setHeader("X-Priority", "1");
-            message.setHeader("X-Mailer", "Spring Boot Mail Sender");
+            message.setHeader("X-Mailer", "TourBookingMailer");
+
             javaMailSender.send(message);
-        } catch (MessagingException e) {
+
+        } catch (MessagingException | UnsupportedEncodingException e) {
             throw new RuntimeException("Failed to send account credentials email", e);
         }
     }
+
+
 
     @Override
     public void changePasswordAndSendEmail(Long accountId) {
@@ -67,8 +97,9 @@ public class AccountServiceImpl implements IAccountService {
         account.setPassword(newPassword);
         accountRepository.save(account);
 
-        sendNewPasswordEmail(user.getEmail(), newPassword);
+        sendNewPasswordEmail(user.getFullname(), user.getEmail(), newPassword);
     }
+
 
 
 
@@ -82,34 +113,43 @@ public class AccountServiceImpl implements IAccountService {
         return sb.toString();
     }
 
-    private void sendNewPasswordEmail(String toEmail, String newPassword) {
+    private void sendNewPasswordEmail(String fullName, String toEmail, String newPassword) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom("dangphuthien2005@gmail.com", "Tour Booking System");
             helper.setTo(toEmail);
-            helper.setSubject("Your New Password");
-            helper.setText(
-                    "<h2>Password Reset</h2>" +
-                            "<p>Your new password is: <b>" + newPassword + "</b></p>" +
-                            "<p>Please change it after logging in.</p>", true);
+            helper.setSubject("Mật khẩu mới - Tour Booking");
 
-            // Example: attach an image (logo.png) from resources
+            String content = """
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                <h2 style="color: #dc3545;">[Tour Booking] Mật khẩu mới của bạn</h2>
+                <p>Xin chào <b>%s</b>,</p>
+                <p>Mật khẩu mới của bạn là: <b>%s</b></p>
+                <p>Vui lòng đăng nhập và thay đổi mật khẩu ngay để bảo mật tài khoản.</p>
+                <hr style="margin-top: 30px;"/>
+                <p style="font-size: 12px; color: gray;">
+                    Đây là email tự động từ hệ thống Tour Booking. Vui lòng không phản hồi.
+                </p>
+                <p style="font-size: 12px; color: gray;">
+                    📍 Trường Đại học UIT — Khoa KTPM<br/>
+                    📧 Hỗ trợ: support@tourbooking.fake
+                </p>
+            </div>
+        """.formatted(fullName, newPassword);
 
-
-            // Example: attach a PDF (guide.pdf) from resources
-            // helper.addAttachment("guide.pdf", new ClassPathResource("static/guide.pdf"));
-
-            // Set headers to reduce spam
+            helper.setText(content, true);
             message.setHeader("X-Priority", "1");
-            message.setHeader("X-Mailer", "Spring Boot Mail Sender");
-            message.setHeader("Return-Path", "your_email@gmail.com");
+            message.setHeader("X-Mailer", "TourBookingMailer");
 
             javaMailSender.send(message);
-        } catch (MessagingException e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             throw new RuntimeException("Failed to send email", e);
         }
     }
+
+
 
     @Override
     public boolean verifyPassword(Long accountId, String password) {
@@ -153,9 +193,16 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public void deleteAccount(Long id) {
-        if (!accountRepository.existsById(id)) {
-            throw new RuntimeException("Account not found");
-        }
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        userRepository.findByAccount(account).ifPresent(user -> {
+            // Delete all favorite tours of the user
+            favoriteTourRepository.deleteAll(favoriteTourRepository.findByUserId(user.getId()));
+            // Delete the cart of the user if exists
+            cartRepository.findByUserId(user.getId()).ifPresent(cartRepository::delete);
+            // Now delete the user
+            userRepository.deleteById(user.getId());
+        });
         accountRepository.deleteById(id);
     }
 }

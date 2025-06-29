@@ -1,4 +1,3 @@
-
 package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.UserDTO;
@@ -29,17 +28,21 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     public String updateCustomerAvatar(Long customerId, MultipartFile file) {
-        User user = userRepository.findByIdAndRoleId(customerId, 2L)
+        User user = userRepository.findByIdAndRoleId(customerId, 1L)
                 .orElseThrow(() -> new UserNotFoundException("Customer not found"));
         try {
-            // Delete old avatar if exists
             String oldAvatarPath = user.getAvatar();
-            if (oldAvatarPath != null && !oldAvatarPath.isEmpty()) {
-                String relativePath = oldAvatarPath.startsWith("/") ? oldAvatarPath.substring(1) : oldAvatarPath;
-                java.nio.file.Path filePath = java.nio.file.Paths.get(relativePath).toAbsolutePath();
-                java.io.File oldAvatarFile = filePath.toFile();
-                if (oldAvatarFile.exists()) {
-                    oldAvatarFile.delete();
+            // Only try to delete if it's a local file (not a URL)
+            if (oldAvatarPath != null && !oldAvatarPath.isEmpty() && !oldAvatarPath.startsWith("http")) {
+                try {
+                    String relativePath = oldAvatarPath.startsWith("/") ? oldAvatarPath.substring(1) : oldAvatarPath;
+                    java.nio.file.Path filePath = java.nio.file.Paths.get(relativePath).toAbsolutePath();
+                    java.io.File oldAvatarFile = filePath.toFile();
+                    if (oldAvatarFile.exists()) {
+                        oldAvatarFile.delete();
+                    }
+                } catch (Exception ignored) {
+                    // Ignore any error when deleting old avatar
                 }
             }
 
@@ -64,7 +67,7 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     public UserDTO createCustomer(UserDTO userDTO) {
-        Role role = roleRepository.findById(2L)
+        Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         Account account = accountRepository.findById(userDTO.getAccount_id())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
@@ -75,14 +78,14 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     public UserDTO getCustomerById(Long id) {
-        User user = userRepository.findByIdAndRoleId(id, 2L)
+        User user = userRepository.findByIdAndRoleId(id, 1L)
                 .orElseThrow(() -> new UserNotFoundException("Customer not found"));
         return UserMapper.mapToUserDTO(user);
     }
 
     @Override
     public UserDTO updateCustomer(Long id, UserDTO userDTO) {
-        User user = userRepository.findByIdAndRoleId(id, 2L)
+        User user = userRepository.findByIdAndRoleId(id, 1L)
                 .orElseThrow(() -> new UserNotFoundException("Customer not found"));
         user.setFullname(userDTO.getFullname());
         user.setEmail(userDTO.getEmail());
@@ -98,7 +101,7 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     public void deleteCustomer(Long id) {
-        User user = userRepository.findByIdAndRoleId(id, 2L)
+        User user = userRepository.findByIdAndRoleId(id, 1L)
                 .orElseThrow(() -> new UserNotFoundException("Customer not found"));
 
         // Delete avatar file if exists
