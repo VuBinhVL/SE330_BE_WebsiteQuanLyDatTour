@@ -2,6 +2,7 @@ package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.TourBookingDTO;
 import com.javaweb.tour_booking.dto.response.HistoryUserBooking;
+import com.javaweb.tour_booking.dto.response.HomeAdminBookingResponse;
 import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
 import com.javaweb.tour_booking.entity.*;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
@@ -14,9 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -51,6 +50,7 @@ public class TourBookingServiceImpl implements ITourBookingService {
         TourBooking saved = tourBookingRepository.save(booking);
         return TourBookingMapper.mapToTourBookingDTO(saved);
     }
+
     @Override
     public TourBookingDTO getTourBookingById(Long id) {
         TourBooking booking = tourBookingRepository.findById(id)
@@ -103,5 +103,28 @@ public class TourBookingServiceImpl implements ITourBookingService {
         return tourBookingRepository.findHistoryByUserId(userId);
     }
 
-
+    @Override
+    public List<HomeAdminBookingResponse> getAllHomeAdminBookings() {
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+        return tourBookingRepository.findAll().stream()
+                .filter(booking -> booking.getCreatedAt() != null && booking.getCreatedAt().isAfter(oneMonthAgo))
+                .map(booking -> {
+                    Tour tour = booking.getTour();
+                    TourRoute route = (tour != null) ? tour.getTourRoute() : null;
+                    String routeName = (route != null) ? route.getRouteName() : null;
+                    String image = (route != null) ? route.getImage() : null;
+                    int quantity = booking.getSeatsBooked();
+                    boolean status = booking.getInvoice() != null && Boolean.TRUE.equals(booking.getInvoice().getPaymentStatus());
+                    LocalDateTime createdAt = booking.getCreatedAt();
+                    return new HomeAdminBookingResponse(
+                            booking.getId(),
+                            routeName,
+                            image,
+                            quantity,
+                            status,
+                            createdAt
+                    );
+                })
+                .collect(Collectors.toList());
+    }
 }

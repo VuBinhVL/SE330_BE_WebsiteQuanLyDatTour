@@ -28,7 +28,10 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
     @Override
     public List<InvoiceDTO> GetAllInvoices() {
-        return null;
+        List<Invoice> invoices = invoiceRepository.findAll();
+        return invoices.stream()
+                .map(InvoiceMapper::mapToInvoiceDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
