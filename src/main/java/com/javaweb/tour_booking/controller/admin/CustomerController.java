@@ -31,7 +31,7 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/get/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<ApiResponse<UserDTO>> getCustomerById(@PathVariable Long id) {
         UserDTO customer = customerService.getCustomerById(id);
         ApiResponse<UserDTO> response = new ApiResponse<>("Customer found", customer);
