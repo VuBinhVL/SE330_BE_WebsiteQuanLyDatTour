@@ -4,14 +4,8 @@ import com.javaweb.tour_booking.dto.request.LoginRequest;
 import com.javaweb.tour_booking.dto.request.RegisterRequest;
 import com.javaweb.tour_booking.dto.response.LoginResponse;
 import com.javaweb.tour_booking.dto.response.RegisterResponse;
-import com.javaweb.tour_booking.entity.Account;
-import com.javaweb.tour_booking.entity.Role;
-import com.javaweb.tour_booking.entity.User;
-import com.javaweb.tour_booking.entity.UserMember;
-import com.javaweb.tour_booking.repository.AccountRepository;
-import com.javaweb.tour_booking.repository.RoleRepository;
-import com.javaweb.tour_booking.repository.UserMemberRepository;
-import com.javaweb.tour_booking.repository.UserRepository;
+import com.javaweb.tour_booking.entity.*;
+import com.javaweb.tour_booking.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +18,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMemberRepository userMemberRepository;
+    private final CartRepository cartRepository;
 
     public LoginResponse login(LoginRequest request) {
         try {
@@ -104,6 +99,13 @@ public class AuthService {
         userMember.setUpdatedAt(LocalDateTime.now());
         userMember.setUser(user);
         userMemberRepository.save(userMember);
+
+        //Tạo giỏ hàng
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cart.setCreatedAt(LocalDateTime.now());
+        cart.setUpdatedAt(LocalDateTime.now());
+        cartRepository.save(cart);
         return new RegisterResponse(true, "Đăng ký tài khoản thành công");
     }
 }

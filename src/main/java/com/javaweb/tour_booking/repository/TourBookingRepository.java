@@ -21,4 +21,5 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Long> 
             "JOIN tb.invoice i " +
             "WHERE u.id = :userId")
     List<HistoryUserBooking> findHistoryByUserId(@Param("userId") Long userId);
+    List<TourBooking> findByUserId(Long userId);
 }
