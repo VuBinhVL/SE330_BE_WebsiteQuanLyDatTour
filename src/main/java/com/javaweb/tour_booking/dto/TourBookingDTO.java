@@ -25,4 +25,5 @@ public class TourBookingDTO {
     private TourDTO tour;
     private TourRouteDTO tourRoute;
     private int tourStatus;
+
 }

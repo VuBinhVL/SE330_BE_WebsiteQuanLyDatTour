@@ -1,13 +1,12 @@
 package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.InvoiceDTO;
+import com.javaweb.tour_booking.dto.TourBookingDTO;
 import com.javaweb.tour_booking.dto.response.InvoiceHistoryResponse;
-import com.javaweb.tour_booking.entity.Invoice;
-import com.javaweb.tour_booking.entity.Tour;
-import com.javaweb.tour_booking.entity.TourBooking;
-import com.javaweb.tour_booking.entity.TourRoute;
+import com.javaweb.tour_booking.entity.*;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.InvoiceMapper;
+import com.javaweb.tour_booking.mapper.TourBookingMapper;
 import com.javaweb.tour_booking.mapper.TourMapper;
 import com.javaweb.tour_booking.repository.InvoiceRepository;
 import com.javaweb.tour_booking.repository.TourBookingRepository;
@@ -15,6 +14,7 @@ import com.javaweb.tour_booking.service.IInvoiceService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,15 +28,41 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
     @Override
     public List<InvoiceDTO> GetAllInvoices() {
-        List<Invoice> invoices = invoiceRepository.findAll();
-        return invoices.stream()
-                .map(InvoiceMapper::mapToInvoiceDTO)
+        return invoiceRepository.findAll().stream()
+                .map(invoice -> {
+                    // Truy vấn tất cả TourBooking theo invoiceId
+                    List<TourBooking> bookings = tourBookingRepository.findAllByInvoiceId(invoice.getId());
+
+                    // Lấy user từ booking đầu tiên nếu có
+                    User user = bookings.isEmpty() ? null : bookings.get(0).getUser();
+
+                    return InvoiceMapper.mapToInvoiceDTO(invoice, user);
+                })
                 .collect(Collectors.toList());
     }
 
+
     @Override
     public InvoiceDTO GetInvoiceById(Long id) {
-        return null;
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + id));
+
+        // Lấy danh sách TourBooking
+        List<TourBooking> bookings = tourBookingRepository.findAllByInvoiceId(id);
+
+        // Lấy User từ booking đầu tiên nếu có
+        User user = bookings.isEmpty() ? null : bookings.get(0).getUser();
+
+        // Map sang DTO với user
+        InvoiceDTO invoiceDTO = InvoiceMapper.mapToInvoiceDTO(invoice, user);
+
+        // Map danh sách TourBookingDTO
+        List<TourBookingDTO> bookingDTOs = bookings.stream()
+                .map(TourBookingMapper::mapToTourBookingDTO)
+                .collect(Collectors.toList());
+
+        invoiceDTO.setTourBookings(bookingDTOs); // set danh sách booking vào DTO
+        return invoiceDTO;
     }
 
     @Override
@@ -49,12 +75,24 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
     @Override
     public InvoiceDTO UpdateInvoice(long id, InvoiceDTO updatedInvoice) {
-        return null;
+        Invoice existing = invoiceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + id));
+
+        existing.setPaymentMethod(updatedInvoice.getPaymentMethod());
+        existing.setPaymentStatus(updatedInvoice.getPaymentStatus());
+        existing.setTotalAmount(updatedInvoice.getTotalAmount());
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        Invoice saved = invoiceRepository.save(existing);
+        return InvoiceMapper.mapToInvoiceDTO(saved);
     }
 
     @Override
     public void DeleteInvoice(long id) {
-
+        if (!invoiceRepository.existsById(id)) {
+            throw new RuntimeException("Invoice not found with id: " + id);
+        }
+        invoiceRepository.deleteById(id);
     }
 
     @Override

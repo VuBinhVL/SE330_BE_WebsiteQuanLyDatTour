@@ -35,7 +35,7 @@ public class Invoice {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_canceled", nullable = false)
+    @Column(name = "is_canceled", nullable = true)
     private Boolean isCanceled;
 
     @ManyToOne(fetch = FetchType.LAZY)

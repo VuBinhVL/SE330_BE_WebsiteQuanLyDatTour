@@ -21,7 +21,6 @@ public class InvoiceMapper {
         invoiceDTO.setTotalAmount(invoice.getTotalAmount());
         invoiceDTO.setIsCanceled(invoice.getIsCanceled());
 
-
         if (user != null) {
             invoiceDTO.setUser(UserMapper.mapToUserDTO(user));
             invoiceDTO.setCustomerName(user.getFullname());
