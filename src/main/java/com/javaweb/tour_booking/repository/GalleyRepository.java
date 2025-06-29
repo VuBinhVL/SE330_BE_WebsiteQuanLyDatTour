@@ -9,4 +9,8 @@ import java.util.List;
 public interface GalleyRepository extends JpaRepository<Galley, Long> {
     List<Galley> findByTouristAttraction(TouristAttraction touristAttraction);
     void deleteByTouristAttraction(TouristAttraction touristAttraction);
+    List<Galley> findByTouristAttractionIdIn(List<Long> attractionIds);
+    List<Galley> findByTouristAttractionId(Long touristAttractionId);
+
+
 }

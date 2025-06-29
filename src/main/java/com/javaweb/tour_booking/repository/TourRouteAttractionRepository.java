@@ -16,4 +16,6 @@ public interface TourRouteAttractionRepository extends JpaRepository<TourRouteAt
 
     List<TourRouteAttraction> findByTourRouteId(Long tourRouteId);
     List<TourRouteAttraction> findByTouristAttraction(TouristAttraction touristAttraction);
+    List<TourRouteAttraction> findByTourRouteIdOrderByDayAscOrderActionAsc(Long tourRouteId);
+
 }

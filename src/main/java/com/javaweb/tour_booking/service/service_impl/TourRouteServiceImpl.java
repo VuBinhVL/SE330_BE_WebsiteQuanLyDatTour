@@ -1,21 +1,23 @@
 package com.javaweb.tour_booking.service.service_impl;
 
 import com.javaweb.tour_booking.dto.FavoriteRouteDTO;
+import com.javaweb.tour_booking.dto.response.AttractionInfo;
+import com.javaweb.tour_booking.dto.response.TourInfo;
+import com.javaweb.tour_booking.dto.response.TourRouteDetailResponse;
 import com.javaweb.tour_booking.dto.response.TourRouteSearchResponse;
-import com.javaweb.tour_booking.entity.Tour;
-import com.javaweb.tour_booking.entity.TourRoute;
+import com.javaweb.tour_booking.entity.*;
 import com.javaweb.tour_booking.dto.TourRouteDTO;
 import com.javaweb.tour_booking.entity.Tour;
 import com.javaweb.tour_booking.entity.TourRoute;
 import com.javaweb.tour_booking.exception.tour_route.TourRouteCannotBeDeletedException;
 import com.javaweb.tour_booking.exception.tourist_attraction.TouristAttractionNotFound;
 import com.javaweb.tour_booking.mapper.TourRouteMapper;
-import com.javaweb.tour_booking.repository.TourRepository;
-import com.javaweb.tour_booking.repository.TourRouteRepository;
+import com.javaweb.tour_booking.repository.*;
 import com.javaweb.tour_booking.service.ITourRouteService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
@@ -29,6 +31,9 @@ import java.util.stream.Collectors;
 public class TourRouteServiceImpl implements ITourRouteService {
     private final TourRouteRepository tourRouteRepository;
     private final TourRepository tourRepository;
+    private final TourRouteAttractionRepository attractionRepo;
+    private final FavoriteTourRepository favoriteRepo;
+    private final GalleyRepository galleryRepo;
 
     private String getInitials(String str) {
         if (str == null || str.isBlank()) return "";
@@ -166,4 +171,60 @@ public class TourRouteServiceImpl implements ITourRouteService {
 
         return responses;
     }
+
+    //Lấy thông tin chi tiét
+    @Override
+    public TourRouteDetailResponse getDetail(Long routeId, Long userId) {
+        TourRoute route = tourRouteRepository.findById(routeId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tour route"));
+
+        boolean isFavorite = userId != null && favoriteRepo.existsByUserIdAndTourRouteId(userId, routeId);
+
+        // Tours
+        List<Tour> tours = tourRepository.findByTourRouteId(routeId);
+        List<TourInfo> tourInfos = tours.stream().map(t -> {
+            long duration = ChronoUnit.DAYS.between(t.getDepatureDate(), t.getReturnDate());
+            List<Long> attractionIds = attractionRepo.findByTourRouteId(routeId).stream()
+                    .map(a -> a.getTouristAttraction().getId()).distinct().toList();
+            List<String> tourGalleries = galleryRepo.findByTouristAttractionIdIn(attractionIds).stream()
+                    .map(Galley::getThumbNail).toList();
+            return new TourInfo(
+                    t.getId(),
+                    t.getDepatureDate().toLocalDate(),
+                    t.getReturnDate().toLocalDate(),
+                    t.getPrice(),
+                    t.getTotalSeats(),
+                    t.getBookedSeats(),
+                    t.getPickUpLocation(),
+                    t.getPickUpTime().toString(),
+                    duration,
+                    tourGalleries
+            );
+        }).toList();
+
+        // Itinerary
+        List<AttractionInfo> itinerary = attractionRepo.findByTourRouteIdOrderByDayAscOrderActionAsc(routeId).stream()
+                .map(a -> {
+                    List<String> imgs = galleryRepo.findByTouristAttractionId(a.getTouristAttraction().getId())
+                            .stream().map(Galley::getThumbNail).toList();
+                    return new AttractionInfo(
+                            a.getDay(),
+                            a.getOrderAction(),
+                            a.getTouristAttraction().getName(),
+                            imgs
+                    );
+                }).toList();
+
+        return new TourRouteDetailResponse(
+                route.getId(),
+                route.getRouteName(),
+                route.getStartLocation(),
+                route.getEndLocation(),
+                isFavorite,
+                tourInfos,
+                itinerary
+        );
+    }
+
+
 }
