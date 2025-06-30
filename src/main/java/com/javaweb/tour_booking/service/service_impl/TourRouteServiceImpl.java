@@ -181,7 +181,9 @@ public class TourRouteServiceImpl implements ITourRouteService {
         boolean isFavorite = userId != null && favoriteRepo.existsByUserIdAndTourRouteId(userId, routeId);
 
         // Tours
-        List<Tour> tours = tourRepository.findByTourRouteId(routeId);
+        List<Tour> tours = tourRepository.findByTourRouteId(routeId).stream()
+                .filter(t -> t.getStatus() == 0)
+                .toList();;
         List<TourInfo> tourInfos = tours.stream().map(t -> {
             long duration = ChronoUnit.DAYS.between(t.getDepatureDate(), t.getReturnDate());
             List<Long> attractionIds = attractionRepo.findByTourRouteId(routeId).stream()
