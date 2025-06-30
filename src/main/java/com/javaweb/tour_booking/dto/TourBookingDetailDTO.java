@@ -18,4 +18,6 @@ public class TourBookingDetailDTO {
     private LocalDateTime updatedAt;
     private Long userMemberId;
     private Long tourBookingId;
+
+    private UserMemberDTO userMember;
 }

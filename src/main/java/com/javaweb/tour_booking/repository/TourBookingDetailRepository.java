@@ -14,4 +14,5 @@ public interface TourBookingDetailRepository extends JpaRepository<TourBookingDe
             "JOIN FETCH tbd.userMember " +
             "WHERE tb.tour.id = :tourId")
     List<TourBookingDetail> findByTourBookingTourId(Long tourId);
+    List<TourBookingDetail> findByTourBookingId(Long bookingId);
 }

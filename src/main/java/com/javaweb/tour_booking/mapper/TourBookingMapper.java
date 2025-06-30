@@ -22,7 +22,6 @@ public class TourBookingMapper {
         dto.setInvoiceId(booking.getInvoice() != null ? booking.getInvoice().getId() : null);
         // map user
         dto.setUser(UserMapper.mapToUserDTO(booking.getUser()));
-
         // map tour
         dto.setTour(TourMapper.mapToTourDTO(booking.getTour()));
 

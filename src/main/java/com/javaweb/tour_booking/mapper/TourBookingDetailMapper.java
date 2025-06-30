@@ -16,6 +16,7 @@ public class TourBookingDetailMapper {
         dto.setUpdatedAt(detail.getUpdatedAt());
         dto.setUserMemberId(detail.getUserMember().getId());
         dto.setTourBookingId(detail.getTourBooking().getId());
+        dto.setUserMember(UserMemberMapper.mapToUserMemberDTO(detail.getUserMember()));
         return dto;
     }
 

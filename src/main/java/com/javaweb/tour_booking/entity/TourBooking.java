@@ -1,5 +1,6 @@
 package com.javaweb.tour_booking.entity;
 
+import com.javaweb.tour_booking.dto.response.TourBookingDetailResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,4 +47,5 @@ public class TourBooking {
     @ManyToOne(fetch = FetchType.LAZY) // LAZY để tránh load toàn bộ invoice khi không cần
     @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
+
 }

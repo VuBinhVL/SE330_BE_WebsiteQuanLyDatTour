@@ -13,6 +13,9 @@ import com.javaweb.tour_booking.service.ITourBookingDetailService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 public class TourBookingDetailServiceImpl implements ITourBookingDetailService {
@@ -32,4 +35,21 @@ public class TourBookingDetailServiceImpl implements ITourBookingDetailService {
         TourBookingDetail saved = tourBookingDetailRepository.save(tourBookingDetail);
         return TourBookingDetailMapper.mapToTourBookingDetailDTO(saved);
     }
+
+    @Override
+    public List<TourBookingDetailDTO> getAllTourBookingDetails() {
+        List<TourBookingDetail> entities = tourBookingDetailRepository.findAll();
+        return entities.stream()
+                .map(TourBookingDetailMapper::mapToTourBookingDetailDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TourBookingDetailDTO> getByBookingId(Long bookingId) {
+        List<TourBookingDetail> details = tourBookingDetailRepository.findByTourBookingId(bookingId);
+        return details.stream()
+                .map(TourBookingDetailMapper::mapToTourBookingDetailDTO)
+                .collect(Collectors.toList());
+    }
+
 }
