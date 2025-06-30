@@ -2,6 +2,7 @@ package com.javaweb.tour_booking.controller;
 
 import com.javaweb.tour_booking.dto.ReviewDTO;
 import com.javaweb.tour_booking.service.IReviewService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")
+@CrossOrigin("*")
+@RequiredArgsConstructor
 public class ReviewController {
     @Autowired
     private IReviewService reviewService;
