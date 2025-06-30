@@ -11,8 +11,8 @@ Hệ thống đặt tour du lịch trực tuyến giúp người dùng tìm ki�
 
 ### Backend (Spring Boot)
 ```bash
-cd backend
-./mvnw spring-boot:run
+mvn spring-boot:run
+
 ```
 
 > **Lưu ý**: Cấu hình database và email trong `application.properties`.
